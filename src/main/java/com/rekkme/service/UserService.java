@@ -5,7 +5,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import com.rekkme.data.dtos.UserCreateDto;
+import com.rekkme.data.entity.Auth;
 import com.rekkme.data.entity.User;
+import com.rekkme.data.repository.AuthRepository;
 import com.rekkme.data.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AuthRepository authRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW,
         rollbackFor = Exception.class)
@@ -35,6 +40,11 @@ public class UserService {
     @Transactional(propagation = Propagation.REQUIRES_NEW,
         rollbackFor = Exception.class)
     public User createUser(UserCreateDto userCreateDto) {
+        System.out.println(userCreateDto.getEmail());
+        System.out.println(userCreateDto.getUsername());
+        System.out.println(userCreateDto.getFirstname());
+        System.out.println(userCreateDto.getLastname());
+        System.out.println(userCreateDto.getPassword());
         User user = new User();
         user.setEmail(userCreateDto.getEmail());
         user.setFirstName(userCreateDto.getFirstname());
@@ -44,6 +54,11 @@ public class UserService {
         user.setKos(0);
         user.setRekPoints(0);
         user.setLastLogin(LocalDateTime.now());
-        return this.userRepository.save(user);
+        Auth auth = new Auth();
+        User resUser = this.userRepository.save(user);
+        auth.setPassword(userCreateDto.getPassword());
+        auth.setUser(resUser);
+        this.authRepository.save(auth);
+        return resUser;
     }
 }

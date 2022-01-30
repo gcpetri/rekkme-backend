@@ -59,7 +59,10 @@ public class RekService {
         rekRes.setRek(rek);
         RekResult rekResult = this.rekResultRepository.save(rekRes);
         System.out.println("saved result");
+        User fromUser = rek.getFromUser();
         rek.setRekResult(rekResult);
+        fromUser.setRekPoints(fromUser.getRekPoints() + (rekRes.getResult() - rek.getWager()));
+        this.userRepository.save(fromUser);
         System.out.println("added result to rek");
         return rekResult;
     }

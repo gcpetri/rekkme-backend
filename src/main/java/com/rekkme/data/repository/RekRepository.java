@@ -16,6 +16,9 @@ public interface RekRepository extends JpaRepository<Rek, Long> {
     @Query(value = "SELECT * FROM REKS r WHERE r.TO_USER_ID = ?1", nativeQuery = true)
     List<Rek> getReksTo(Long userId);
 
+    @Query(value = "SELECT * FROM REKS r WHERE r.FROM_USER_ID = ?1", nativeQuery = true)
+    List<Rek> getReksFrom(Long userId);
+
     @Query(value = "SELECT * FROM REKS LEFT JOIN USER_REK_QUEUES ON REKS.REK_ID = USER_REK_QUEUES.REK_ID WHERE USER_REK_QUEUES.USER_ID = ?1 ORDER BY USER_REK_QUEUES.QUEUE_ORDER ASC", nativeQuery = true)
     List<Rek> getQueue(Long userId);
 
@@ -25,4 +28,7 @@ public interface RekRepository extends JpaRepository<Rek, Long> {
     @Modifying
     @Query(value = "INSERT INTO USER_REK_QUEUES (USER_ID, REK_ID, QUEUE_ORDER) VALUES (?1, ?2, ?3)", nativeQuery = true)
     void addToQueue(Long userId, Long rekId, int queueOrder);
+
+    @Query(value = "SELECT * FROM REKS r WHERE r.TO_USER_ID IN ?1 OR r.FROM_USER_ID IN ?1 ORDER BY r.CREATED_ON DESC", nativeQuery = true)
+    List<Rek> getActivity(List<Long> userIds);
 }

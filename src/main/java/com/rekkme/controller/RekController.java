@@ -71,10 +71,35 @@ public class RekController {
     }
 
     @CrossOrigin
+    @GetMapping("/from")
+    public List<RekDto> getReksFrom(@RequestAttribute("user") User user, HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        return this.rekRepository.getReksFrom(user.getUserId())
+            .stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+    }
+
+    @CrossOrigin
     @GetMapping("/queue")
     public List<RekDto> getRekQueue(@RequestAttribute("user") User user, HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "*");
         return this.rekRepository.getQueue(user.getUserId())
+            .stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+    }
+
+    @CrossOrigin
+    @GetMapping("/activity")
+    public List<RekDto> getActivity(@RequestAttribute("user") User user, HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        List<Long> userIds = new ArrayList<>();
+        userIds.add(user.getUserId());
+        for (User friend : user.getFriends()) {
+            userIds.add(friend.getUserId());
+        }
+        return this.rekRepository.getActivity(userIds)
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
