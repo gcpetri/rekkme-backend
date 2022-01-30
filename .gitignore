@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 bin/config.properties
 bin/*.jar
+*.jar
 .mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
