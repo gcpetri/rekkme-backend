@@ -4,15 +4,15 @@ INSERT INTO CATEGORIES (NAME) VALUES ('Products');
 INSERT INTO CATEGORIES (NAME) VALUES ('Restaurants');
 INSERT INTO CATEGORIES (NAME) VALUES ('Travel');
 
-INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('gcpetri', 'Gregory', 'Petri', 'gcpetri@tamu.edu', LOCALTIMESTAMP, 500, 2, 'https://avatars.githubusercontent.com/u/61479556?v=4');
+INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('gcpetri', 'Gregory', 'Petri', 'gcpetri@tamu.edu', LOCALTIMESTAMP, 500, 2, 'https://raw.githubusercontent.com/tatiaris/rekkme/e3bd5b661546a556cd5b842a6d53c39deccf921c/public/avatars/girl-1.png');
 INSERT INTO AUTH (USER_ID, PASSWORD) VALUES (1, 'password');
-INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('tatiaris', 'Rish', 'Tatia', 'tatiaris@tamu.edu', LOCALTIMESTAMP, 1000, 12, 'https://avatars.githubusercontent.com/u/33273930?v=4');
+INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('tatiaris', 'Rish', 'Tatia', 'tatiaris@tamu.edu', LOCALTIMESTAMP, 1000, 12, 'https://raw.githubusercontent.com/tatiaris/rekkme/e3bd5b661546a556cd5b842a6d53c39deccf921c/public/avatars/guy-1.png');
 INSERT INTO AUTH (USER_ID, PASSWORD) VALUES (2, 'password');
-INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('dantheman', 'Dan', 'Abreo', 'dan.abreo@tamu.edu', LOCALTIMESTAMP, 200, 10, 'https://avatars.githubusercontent.com/u/34114190?v=4');
+INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('dantheman', 'Dan', 'Abreo', 'dan.abreo@tamu.edu', LOCALTIMESTAMP, 200, 10, 'https://raw.githubusercontent.com/tatiaris/rekkme/e3bd5b661546a556cd5b842a6d53c39deccf921c/public/avatars/girl-2.png');
 INSERT INTO AUTH (USER_ID, PASSWORD) VALUES (3, 'password');
-INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('gcurious', 'Curious', 'George', 'gcurious@tamu.edu', LOCALTIMESTAMP, 900, 0, 'https://images-na.ssl-images-amazon.com/images/I/81inD4wl+QL.jpg');
+INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('gcurious', 'Curious', 'George', 'gcurious@tamu.edu', LOCALTIMESTAMP, 900, 0, 'https://raw.githubusercontent.com/tatiaris/rekkme/e3bd5b661546a556cd5b842a6d53c39deccf921c/public/avatars/guy-2.png');
 INSERT INTO AUTH (USER_ID, PASSWORD) VALUES (4, 'password');
-INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('theaggie', 'Maddie', 'The Aggie', 'theaggie@tamu.edu', LOCALTIMESTAMP, 100000, 20, 'https://www.tamu.edu/assets/images/12thman-stat.png');
+INSERT INTO USERS (USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL) VALUES ('theaggie', 'Maddie', 'The Aggie', 'theaggie@tamu.edu', LOCALTIMESTAMP, 100000, 20, 'https://raw.githubusercontent.com/tatiaris/rekkme/e3bd5b661546a556cd5b842a6d53c39deccf921c/public/avatars/girl-1.png');
 INSERT INTO AUTH (USER_ID, PASSWORD) VALUES (5, 'password');
 
 INSERT INTO USER_FRIENDS (USER_ID, FRIEND_ID) VALUES (1, 2);
