@@ -57,6 +57,14 @@ public class Comment {
         this.message = message;
     }
 
+    public Rek getRek() {
+        return this.rek;
+    }
+
+    public void setRek(Rek rek) {
+        this.rek = rek;
+    }
+
     public User getUser() {
         return this.user;
     }

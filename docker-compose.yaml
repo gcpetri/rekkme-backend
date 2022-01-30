@@ -10,9 +10,12 @@ services:
     container_name: app
     depends_on:
       - db
-    #environment:
-    #  - SPRING_DATASOURCE_URL=jdbc:postgres://vydmuyigwpjxwz:e81e6177e0d6a1f662bed25edd74ca1c8f02e1705671ab531a27b3522c2c7d29@ec2-44-199-52-133.compute-1.amazonaws.com:5432/dcqf1mmo2eddlm?sslmode=require&sslfactory=org.postgresql.ssl.NonValidatingFactory
-    #  - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/compose-postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_DATASOURCE_USERNAME=compose-postgres
+      - SPRING_DATASOURCE_PASSWORD=compose-postgres
+      - SPRING_JPA_DATABASE-PLATFORM=org.hibernate.dialect.PostgreSQLDialect
           
   db:
     image: 'postgres:13.1-alpine'

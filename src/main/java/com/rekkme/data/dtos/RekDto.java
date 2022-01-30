@@ -13,7 +13,7 @@ public class RekDto {
 
     private Long rekId;
     private String url;
-    private String content;
+    private String description;
 	private Integer wager;
     private UserDto toUser;
     private UserDto fromUser;
@@ -22,7 +22,10 @@ public class RekDto {
     private RekResultDto rekResult;
     private List<CommentDto> comments;
     private Set<TagDto> tags = new HashSet<>();
-
+    private String imageUrl;
+    private String artist;
+    private String location;
+    private String title;
 
     public Long getRekId() {
         return this.rekId;
@@ -38,14 +41,6 @@ public class RekDto {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getContent() {
-        return this.content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public Integer getWager() {
@@ -110,6 +105,46 @@ public class RekDto {
 
     public void setTags(Set<TagDto> tags) {
         this.tags = tags;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getImageUrl() {
+        return this.imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getArtist() {
+        return this.artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public String getLocation() {
+        return this.location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
 }

@@ -35,8 +35,8 @@ public class Rek {
     @Column(name="URL", nullable=false)
     private String url;
 
-    @Column(name="CONTENT", nullable=false)
-    private String content;
+    @Column(name="DESCRIPTION", nullable=false)
+    private String description;
 
     @Column(name="WAGER")
     @Min(0)
@@ -56,6 +56,18 @@ public class Rek {
 
     @Column(name="CREATED_ON", updatable=false)
     private LocalDateTime createdOn;
+
+    @Column(name="TITLE")
+    private String title;
+
+    @Column(name="IMAGE_URL")
+    private String imageUrl;
+
+    @Column(name="ARTIST")
+    private String artist;
+
+    @Column(name="LOCATION")
+    private String location;
 
     @OneToOne(mappedBy="rek",
         targetEntity=RekResult.class,
@@ -82,14 +94,6 @@ public class Rek {
 
     public void setRekId(Long rekId) {
         this.rekId = rekId;
-    }
-
-    public String getContent() {
-        return this.content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public Integer getWager() {
@@ -162,6 +166,46 @@ public class Rek {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getImageUrl() {
+        return this.imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getArtist() {
+        return this.artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public String getLocation() {
+        return this.location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
 }

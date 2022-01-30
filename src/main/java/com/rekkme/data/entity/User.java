@@ -1,5 +1,6 @@
 package com.rekkme.data.entity;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,6 +56,12 @@ public class User {
         joinColumns=@JoinColumn(name="USER_ID", referencedColumnName="USER_ID"),
         inverseJoinColumns=@JoinColumn(name="FRIEND_ID", referencedColumnName="USER_ID"))
     private Set<User> friends = new HashSet<>();
+
+    @Column(name="IMAGE_URL")
+    private String imageUrl;
+
+    @Column(name="LAST_LOGIN")
+    private LocalDateTime lastLogin;
 
     public Long getUserId() {
         return this.userId;
@@ -118,6 +125,22 @@ public class User {
 
     public void setFriends(Set<User> friends) {
         this.friends = friends;
+    }
+
+    public String getImageUrl() {
+        return this.imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public LocalDateTime getLastLogin() {
+        return this.lastLogin;
+    }
+
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
 }
