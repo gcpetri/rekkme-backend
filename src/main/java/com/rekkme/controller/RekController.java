@@ -71,6 +71,16 @@ public class RekController {
     }
 
     @CrossOrigin
+    @GetMapping("/queue")
+    public List<RekDto> getRekQueue(@RequestAttribute("user") User user, HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        return this.rekRepository.getQueue(user.getUserId())
+            .stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+    }
+
+    @CrossOrigin
     @GetMapping("/{id}")
     public RekDto getRekById(@RequestAttribute("user") User user, @PathVariable Long id, HttpServletResponse response) {
         List<Rek> reks = this.rekRepository.getReksTo(user.getUserId());
@@ -87,7 +97,7 @@ public class RekController {
     @PostMapping("/save")
     public List<RekDto> addReks(@RequestAttribute("user") User user,
         @RequestBody RekRequestDto rekReq, HttpServletResponse response) {
-
+        try {
         Category cat = this.categoryRepository.findByNameIgnoreCase(rekReq.getCategory());
         if (cat == null) {
             throw new RecordNotFoundException("category" + rekReq.getCategory(), 0L);
@@ -98,6 +108,10 @@ public class RekController {
         return newSavedReks.stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RecordNotFoundException("rek", 0L);
+        }   
     }
 
     @CrossOrigin
@@ -119,6 +133,15 @@ public class RekController {
             throw new RecordNotFoundException("rek", rekId);
         }
         return convertRekResultToDto(rek.getRekResult());
+    }
+
+    @CrossOrigin
+    @PostMapping("/queue/add/{rekId}")
+    public List<RekDto> addToQueue(@RequestAttribute("user") User user, @PathVariable Long rekId, HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        return this.rekService.addQueue(user, rekId).stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
     }
 
     @CrossOrigin

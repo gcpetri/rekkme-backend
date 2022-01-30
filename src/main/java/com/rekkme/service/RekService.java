@@ -97,6 +97,7 @@ public class RekService {
             rek.setImageUrl(rekReq.getImageUrl());
             rek.setFromUser(user);
             rek.setToUser(toUser);
+            rek.setTitle(rekReq.getTitle());
             newReks.add(rek);
         }
         List<Rek> newSavedReks = this.rekRepository.saveAll(newReks);
@@ -127,5 +128,17 @@ public class RekService {
         comment.setUser(user);
         comment.setRek(rek);
         return this.commentRepository.save(comment);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW,
+        rollbackFor = Exception.class)
+    public List<Rek> addQueue(User user, Long rekId) {
+        Rek rek = this.rekRepository.getById(rekId);
+        if (rek == null) {
+            throw new RecordNotFoundException("reks", rekId);
+        }
+        List<Long> queueOrder = this.rekRepository.getQueueOrders(user.getUserId());
+        this.rekRepository.addToQueue(user.getUserId(), rekId, queueOrder.size());
+        return this.rekRepository.getQueue(user.getUserId());
     }
 }

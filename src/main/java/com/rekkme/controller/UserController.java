@@ -12,6 +12,7 @@ import javax.websocket.server.PathParam;
 import com.rekkme.data.dtos.LoginDto;
 import com.rekkme.data.dtos.LoginResponseDto;
 import com.rekkme.data.dtos.SessionDto;
+import com.rekkme.data.dtos.UserCreateDto;
 import com.rekkme.data.dtos.UserDto;
 import com.rekkme.data.entity.Auth;
 import com.rekkme.data.entity.User;
@@ -158,6 +159,23 @@ public class UserController {
         response.setHeader("Access-Control-Allow-Headers", "*");
         response.addCookie(cookie);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @CrossOrigin
+    @PostMapping("/login/create")
+    public ResponseEntity<Object> userCreate(@RequestBody UserCreateDto userCreateDto, HttpServletResponse response) throws IOException {
+        LoginResponseDto respDto = new LoginResponseDto();
+        User user = this.userService.createUser(userCreateDto);
+        if (user == null) {
+            respDto.setSuccess(false);
+            return ResponseEntity.status(HttpStatus.OK).body(respDto);
+        }
+        Cookie cookie = new Cookie("userid", user.getUserId().toString());
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Headers", "*");
+        response.addCookie(cookie);
+        respDto.setSuccess(true);
+        return ResponseEntity.status(HttpStatus.OK).body(respDto);
     }
 
     // utils
