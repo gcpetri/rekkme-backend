@@ -1,0 +1,12 @@
+package com.rekkme.data.repository;
+
+import com.rekkme.data.entity.Auth;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+public interface AuthRepository extends JpaRepository<Auth, Long> { 
+
+    @Query(value = "SELECT * FROM AUTH a WHERE a.USER_ID = ?1", nativeQuery = true)
+    Auth findByUserId(Long userId);
+}
