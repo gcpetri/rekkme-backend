@@ -23,6 +23,7 @@ import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.CategoryRepository;
 import com.rekkme.data.repository.RekRepository;
 import com.rekkme.data.repository.RekResultRepository;
+import com.rekkme.data.repository.UserRepository;
 import com.rekkme.exception.RecordNotFoundException;
 import com.rekkme.service.RekService;
 
@@ -55,6 +56,9 @@ public class RekController {
 
     @Autowired
     private RekResultRepository rekResultRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @CrossOrigin
     @GetMapping(value={"", "/", "/list"})
@@ -127,31 +131,29 @@ public class RekController {
     }
 
     @CrossOrigin
-    @PostMapping("/newresults")
+    @GetMapping("/results/new")
     public List<ResultNotificationDto> getNewRekResults(@RequestAttribute("user") User user,
         HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "*");
+
         List<ResultNotificationDto> resp = new ArrayList<>();
-        try {
-            LocalDateTime lastLogin = user.getLastLogin();
-            List<RekResult> results = this.rekResultRepository.findAll();
-            for (RekResult res : results) {
-                if (res.getCreatedOn().isAfter(lastLogin)) {
-                    ResultNotificationDto note = new ResultNotificationDto();
-                    note.setCreatedOn(res.getCreatedOn());
-                    note.setResult(res.getResult());
-                    note.setTitle(res.getRek().getTitle());
-                    note.setWager(res.getRek().getWager());
-                    note.setDiff(res.getResult() - res.getRek().getWager());
-                    note.setToUser(convertUserToDto(res.getRek().getToUser()));
-                    resp.add(note);
-                }
+        LocalDateTime lastLogin = user.getLastLogin();
+        List<RekResult> results = this.rekResultRepository.findAll();
+        for (RekResult res : results) {
+            if (res.getCreatedOn().isAfter(lastLogin)) {
+                ResultNotificationDto note = new ResultNotificationDto();
+                note.setCreatedOn(res.getCreatedOn());
+                note.setResult(res.getResult());
+                note.setTitle(res.getRek().getTitle());
+                note.setWager(res.getRek().getWager());
+                note.setDiff(res.getResult() - res.getRek().getWager());
+                note.setToUser(convertUserToDto(res.getRek().getToUser()));
+                resp.add(note);
             }
-            return resp;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RecordNotFoundException("rek", 0L);
         }
+        user.setLastLogin(LocalDateTime.now());
+        this.userRepository.save(user);
+        return resp;
     }
 
     // utils

@@ -23,7 +23,7 @@ import javax.validation.constraints.Min;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
-@Table(name="REK")
+@Table(name="REKS")
 @DynamicUpdate
 public class Rek {
 

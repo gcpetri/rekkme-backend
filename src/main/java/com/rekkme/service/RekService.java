@@ -119,7 +119,7 @@ public class RekService {
     public Comment addComment(CommentDto commentDto, User user, Long rekId) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
-            throw new RecordNotFoundException("rek", rekId);
+            throw new RecordNotFoundException("reks", rekId);
         }
         Comment comment = new Comment();
         comment.setCreatedOn(LocalDateTime.now());

@@ -22,7 +22,7 @@ import org.hibernate.annotations.DynamicUpdate;
 public class RekResult {
 
     @Id
-    @Column(name="QUESTION_ID", updatable=false)
+    @Column(name="REK_RESULT_ID", updatable=false)
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long rekResultId;
 
