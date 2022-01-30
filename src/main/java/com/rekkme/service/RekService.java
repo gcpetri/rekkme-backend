@@ -56,6 +56,7 @@ public class RekService {
         rekRes.setKo(false);
         rekRes.setResult(rekResultReq.getResult());
         rekRes.setCreatedOn(LocalDateTime.now());
+        rekRes.setRek(rek);
         RekResult rekResult = this.rekResultRepository.save(rekRes);
         System.out.println("saved result");
         rek.setRekResult(rekResult);
@@ -122,7 +123,7 @@ public class RekService {
         }
         Comment comment = new Comment();
         comment.setCreatedOn(LocalDateTime.now());
-        comment.setMessage(comment.getMessage());
+        comment.setMessage(commentDto.getMessage());
         comment.setUser(user);
         comment.setRek(rek);
         return this.commentRepository.save(comment);

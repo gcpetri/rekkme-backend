@@ -132,21 +132,26 @@ public class RekController {
         HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "*");
         List<ResultNotificationDto> resp = new ArrayList<>();
-        LocalDateTime lastLogin = user.getLastLogin();
-        List<RekResult> results = this.rekResultRepository.findAll();
-        for (RekResult res : results) {
-            if (res.getCreatedOn().isAfter(lastLogin)) {
-                ResultNotificationDto note = new ResultNotificationDto();
-                note.setCreatedOn(res.getCreatedOn());
-                note.setResult(res.getResult());
-                note.setTitle(res.getRek().getTitle());
-                note.setWager(res.getRek().getWager());
-                note.setDiff(res.getResult() - res.getRek().getWager());
-                note.setToUser(convertUserToDto(res.getRek().getToUser()));
-                resp.add(note);
+        try {
+            LocalDateTime lastLogin = user.getLastLogin();
+            List<RekResult> results = this.rekResultRepository.findAll();
+            for (RekResult res : results) {
+                if (res.getCreatedOn().isAfter(lastLogin)) {
+                    ResultNotificationDto note = new ResultNotificationDto();
+                    note.setCreatedOn(res.getCreatedOn());
+                    note.setResult(res.getResult());
+                    note.setTitle(res.getRek().getTitle());
+                    note.setWager(res.getRek().getWager());
+                    note.setDiff(res.getResult() - res.getRek().getWager());
+                    note.setToUser(convertUserToDto(res.getRek().getToUser()));
+                    resp.add(note);
+                }
             }
+            return resp;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RecordNotFoundException("rek", 0L);
         }
-        return resp;
     }
 
     // utils
