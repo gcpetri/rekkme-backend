@@ -7,6 +7,7 @@ bin/config.properties
 bin/*.jar
 *.jar
 .mvn/wrapper/maven-wrapper.jar
+*.env
 
 ### STS ###
 .apt_generated
