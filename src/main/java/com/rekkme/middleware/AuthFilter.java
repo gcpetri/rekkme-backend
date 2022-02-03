@@ -14,15 +14,13 @@ import com.rekkme.exception.RecordNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(2)
 public class AuthFilter extends OncePerRequestFilter {
     
     @Value("${app.api.basepath}")
@@ -38,7 +36,7 @@ public class AuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request)
         throws ServletException {
         String path = request.getRequestURI();
-        return path.contains("/login") || request.getMethod().equals(HttpMethod.GET.toString());
+        return path.contains("/login");
     }
 
     @Override
@@ -48,7 +46,7 @@ public class AuthFilter extends OncePerRequestFilter {
         String cookie = "";
         if (request.getCookies() == null) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            // response.sendRedirect(this.basepath + "/login");
+            System.out.println(request.getRequestURL());
             return;
         }
 
@@ -60,7 +58,6 @@ public class AuthFilter extends OncePerRequestFilter {
         }
         if (cookie == null) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            // response.sendRedirect(this.basepath + "/login");
             return;
         }
 
@@ -73,7 +70,6 @@ public class AuthFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            // response.sendRedirect(this.basepath + "/login");
             return;
         }
         

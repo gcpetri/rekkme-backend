@@ -1,12 +1,9 @@
 package com.rekkme.controller;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletResponse;
 
 import com.rekkme.data.dtos.CommentDto;
 import com.rekkme.data.dtos.RekDto;
@@ -29,7 +26,6 @@ import com.rekkme.service.RekService;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -193,6 +189,7 @@ public class RekController {
         return rekDto;
     }
 
+    /*
     private Rek convertToEntity(RekDto challengeDto) throws ParseException {
         Rek rek = modelMapper.map(challengeDto, Rek.class);
         return rek;
@@ -201,7 +198,7 @@ public class RekController {
     private Comment convertCommentToEntity(CommentDto commentDto) {
         Comment comment = modelMapper.map(commentDto, Comment.class);
         return comment;
-    }
+    } */
 
     private CommentDto convertCommentToDto(Comment comment) {
         CommentDto commentDto = modelMapper.map(comment, CommentDto.class);

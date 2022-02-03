@@ -1,7 +1,6 @@
 package com.rekkme.controller;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,14 +10,12 @@ import javax.websocket.server.PathParam;
 
 import com.rekkme.data.dtos.LoginDto;
 import com.rekkme.data.dtos.LoginResponseDto;
-import com.rekkme.data.dtos.SessionDto;
 import com.rekkme.data.dtos.UserCreateDto;
 import com.rekkme.data.dtos.UserDto;
 import com.rekkme.data.entity.Auth;
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.AuthRepository;
 import com.rekkme.data.repository.UserRepository;
-import com.rekkme.exception.RecordNotFoundException;
 import com.rekkme.service.UserService;
 
 import org.modelmapper.ModelMapper;
@@ -29,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,12 +56,14 @@ public class UserController {
         return convertToDto(user);
     }
 
+    /*
     @GetMapping("/session")
     public SessionDto getUserFromSession(@RequestAttribute("user") User user) {
         SessionDto resp = new SessionDto();
         resp.setSession(convertToDto(user));
         return resp;
     }
+    */
 
     @GetMapping("/friends")
     public List<UserDto> getUserFriends(@RequestAttribute("user") User user) {
@@ -165,10 +163,5 @@ public class UserController {
     private UserDto convertToDto(User user) {
         UserDto userDto = modelMapper.map(user, UserDto.class);
         return userDto;
-    }
-
-    private User convertToEntity(UserDto userDto) throws ParseException {
-        User user = modelMapper.map(userDto, User.class);
-        return user;
     }
 }
