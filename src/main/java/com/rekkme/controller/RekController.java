@@ -60,40 +60,32 @@ public class RekController {
     @Autowired
     private UserRepository userRepository;
 
-    @CrossOrigin
     @GetMapping(value={"", "/", "/list"})
-    public List<RekDto> getReks(@RequestAttribute("user") User user, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public List<RekDto> getReks(@RequestAttribute("user") User user) {
         return this.rekRepository.getReksTo(user.getUserId())
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
     }
 
-    @CrossOrigin
     @GetMapping("/from")
-    public List<RekDto> getReksFrom(@RequestAttribute("user") User user, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public List<RekDto> getReksFrom(@RequestAttribute("user") User user) {
         return this.rekRepository.getReksFrom(user.getUserId())
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
     }
 
-    @CrossOrigin
     @GetMapping("/queue")
-    public List<RekDto> getRekQueue(@RequestAttribute("user") User user, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public List<RekDto> getRekQueue(@RequestAttribute("user") User user) {
         return this.rekRepository.getQueue(user.getUserId())
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
     }
 
-    @CrossOrigin
     @GetMapping("/activity")
-    public List<RekDto> getActivity(@RequestAttribute("user") User user, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public List<RekDto> getActivity(@RequestAttribute("user") User user) {
         List<Long> userIds = new ArrayList<>();
         userIds.add(user.getUserId());
         for (User friend : user.getFriends()) {
@@ -105,11 +97,9 @@ public class RekController {
             .collect(Collectors.toList());
     }
 
-    @CrossOrigin
     @GetMapping("/{id}")
-    public RekDto getRekById(@RequestAttribute("user") User user, @PathVariable Long id, HttpServletResponse response) {
+    public RekDto getRekById(@RequestAttribute("user") User user, @PathVariable Long id) {
         List<Rek> reks = this.rekRepository.getReksTo(user.getUserId());
-        response.setHeader("Access-Control-Allow-Origin", "*");
         for (Rek rek : reks) {
             if (rek.getRekId() == id) {
                 return convertToDto(rek);
@@ -118,16 +108,14 @@ public class RekController {
         throw new RecordNotFoundException("Rek", id);
     }
 
-    @CrossOrigin
     @PostMapping("/save")
     public List<RekDto> addReks(@RequestAttribute("user") User user,
-        @RequestBody RekRequestDto rekReq, HttpServletResponse response) {
+        @RequestBody RekRequestDto rekReq) {
         try {
         Category cat = this.categoryRepository.findByNameIgnoreCase(rekReq.getCategory());
         if (cat == null) {
             throw new RecordNotFoundException("category" + rekReq.getCategory(), 0L);
         }
-        response.setHeader("Access-Control-Allow-Origin", "*");
         
         List<Rek> newSavedReks = this.rekService.addReks(rekReq, user, cat);
         return newSavedReks.stream()
@@ -139,20 +127,16 @@ public class RekController {
         }   
     }
 
-    @CrossOrigin
     @PostMapping("/{rekId}/result")
     public RekResultDto addRekResult(@RequestAttribute("user") User user, @PathVariable Long rekId,
-        @RequestBody RekResultRequestDto rekResultReq, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        @RequestBody RekResultRequestDto rekResultReq) {
         RekResult rekResult = this.rekService.addRekResult(user, rekId, rekResultReq);
         return convertRekResultToDto(rekResult);
     }
 
-    @CrossOrigin
     @GetMapping("/{rekId}/result/{resultId}")
     public RekResultDto getRekResult(@RequestAttribute("user") User user, @PathVariable Long rekId,
-        @PathVariable Long resultId, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        @PathVariable Long resultId) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
             throw new RecordNotFoundException("rek", rekId);
@@ -160,29 +144,22 @@ public class RekController {
         return convertRekResultToDto(rek.getRekResult());
     }
 
-    @CrossOrigin
     @PostMapping("/queue/add/{rekId}")
-    public List<RekDto> addToQueue(@RequestAttribute("user") User user, @PathVariable Long rekId, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public List<RekDto> addToQueue(@RequestAttribute("user") User user, @PathVariable Long rekId) {
         return this.rekService.addQueue(user, rekId).stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
     }
 
-    @CrossOrigin
     @PostMapping("/{rekId}/comment")
     public CommentDto addComment(@RequestAttribute("user") User user, @PathVariable Long rekId,
-        @RequestBody CommentDto commentDto, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+        @RequestBody CommentDto commentDto) {
         Comment newComment = rekService.addComment(commentDto, user, rekId);
         return convertCommentToDto(newComment);
     }
 
-    @CrossOrigin
     @GetMapping("/results/new")
-    public List<ResultNotificationDto> getNewRekResults(@RequestAttribute("user") User user,
-        HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public List<ResultNotificationDto> getNewRekResults(@RequestAttribute("user") User user) {
 
         List<ResultNotificationDto> resp = new ArrayList<>();
         LocalDateTime lastLogin = user.getLastLogin();

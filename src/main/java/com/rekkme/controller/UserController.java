@@ -55,38 +55,29 @@ public class UserController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @CrossOrigin
     @GetMapping(value={"/", ""})
-    public UserDto getUser(@RequestAttribute("user") User user, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public UserDto getUser(@RequestAttribute("user") User user) {
         return convertToDto(user);
     }
 
-    @CrossOrigin
     @GetMapping("/session")
-    public SessionDto getUserFromSession(@RequestAttribute("user") User user, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Headers", "*");
+    public SessionDto getUserFromSession(@RequestAttribute("user") User user) {
         SessionDto resp = new SessionDto();
         resp.setSession(convertToDto(user));
         return resp;
     }
 
-    @CrossOrigin
     @GetMapping("/friends")
-    public List<UserDto> getUserFriends(@RequestAttribute("user") User user, HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public List<UserDto> getUserFriends(@RequestAttribute("user") User user) {
         return user.getFriends()
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
     }
 
-    @CrossOrigin
     @PostMapping("/friends/save")
-    public List<UserDto> addUserFriend(@RequestAttribute("user") User user, @PathParam("username") String username, HttpServletResponse response) {
+    public List<UserDto> addUserFriend(@RequestAttribute("user") User user, @PathParam("username") String username) {
         User friend = this.userRepository.findByUsername(username);
-        response.setHeader("Access-Control-Allow-Origin", "*");
         if (friend == null) {
             return user.getFriends().stream()
                 .map(this::convertToDto)
@@ -102,12 +93,9 @@ public class UserController {
             .collect(Collectors.toList());
     }
 
-    @CrossOrigin
     @DeleteMapping("/friends/delete")
-    public List<UserDto> removeUserFriend(@RequestAttribute("user") User user, @PathParam("username") String username,
-        HttpServletResponse response) {
+    public List<UserDto> removeUserFriend(@RequestAttribute("user") User user, @PathParam("username") String username) {
         User friend = this.userRepository.findByUsername(username);
-        response.setHeader("Access-Control-Allow-Origin", "*");
         if (friend == null) {
             System.out.println("friend not found");
             return user.getFriends()
@@ -137,26 +125,21 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(respDto);
         }
         Cookie cookie = new Cookie("userid", user.getUserId().toString());
+        cookie.setSecure(true);
         response.addCookie(cookie);
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Headers", "*");
         respDto.setSuccess(true);
         return ResponseEntity.status(HttpStatus.OK).body(respDto);
     }
 
-    @CrossOrigin
     @GetMapping("/login")
-    public ResponseEntity<Object> getLogin(HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+    public ResponseEntity<Object> getLogin() {
         return ResponseEntity.ok().build();
     }
 
-    @CrossOrigin
     @PostMapping("/logout")
     public ResponseEntity<Object> userLogout(@RequestAttribute("user") User user, HttpServletResponse response) throws IOException {
         Cookie cookie = new Cookie("userid", null);
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Headers", "*");
+        cookie.setSecure(true);
         response.addCookie(cookie);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -171,8 +154,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(respDto);
         }
         Cookie cookie = new Cookie("userid", user.getUserId().toString());
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Headers", "*");
+        cookie.setSecure(true);
         response.addCookie(cookie);
         respDto.setSuccess(true);
         return ResponseEntity.status(HttpStatus.OK).body(respDto);

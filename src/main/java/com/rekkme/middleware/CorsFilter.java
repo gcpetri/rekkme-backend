@@ -9,6 +9,9 @@ public class CorsFilter implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/rekkme/**").allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
+        registry.addMapping("/rekkme/**")
+            .allowedOrigins("http://localhost:3000", "https://rekkme.vercel.app")
+            .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+            .allowCredentials(true);
     }
 }

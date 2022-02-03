@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -36,17 +38,17 @@ public class AuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request)
         throws ServletException {
         String path = request.getRequestURI();
-        return path.contains("/login");
+        return path.contains("/login") || request.getMethod().equals(HttpMethod.GET.toString());
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws IOException {
-
         // if there are not cookies
         String cookie = "";
         if (request.getCookies() == null) {
-            response.sendRedirect(this.basepath + "/login");
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            // response.sendRedirect(this.basepath + "/login");
             return;
         }
 
@@ -57,7 +59,8 @@ public class AuthFilter extends OncePerRequestFilter {
             }
         }
         if (cookie == null) {
-            response.sendRedirect(this.basepath + "/login");
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            // response.sendRedirect(this.basepath + "/login");
             return;
         }
 
@@ -69,7 +72,8 @@ public class AuthFilter extends OncePerRequestFilter {
             request.setAttribute("user", user);
             filterChain.doFilter(request, response);
         } catch (Exception e) {
-            response.sendRedirect(this.basepath + "/login");
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            // response.sendRedirect(this.basepath + "/login");
             return;
         }
         
