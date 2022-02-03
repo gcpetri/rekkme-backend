@@ -1,10 +1,11 @@
 package com.rekkme.data.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -18,9 +19,9 @@ import org.hibernate.annotations.DynamicUpdate;
 public class Auth {
     
     @Id
-    @Column(name="AUTH_ID", updatable=false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long authId;
+    @GeneratedValue
+    @Column(name="AUTH_ID", columnDefinition = "uuid", updatable=false)
+    private UUID authId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="USER_ID", referencedColumnName="USER_ID")
@@ -30,11 +31,11 @@ public class Auth {
     private String password;
 
 
-    public Long getAuthId() {
+    public UUID getAuthId() {
         return this.authId;
     }
 
-    public void setAuthId(Long authId) {
+    public void setAuthId(UUID authId) {
         this.authId = authId;
     }
 

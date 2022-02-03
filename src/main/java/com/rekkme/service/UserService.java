@@ -3,6 +3,7 @@ package com.rekkme.service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.rekkme.data.dtos.UserCreateDto;
 import com.rekkme.data.entity.Auth;
@@ -27,24 +28,19 @@ public class UserService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW,
         rollbackFor = Exception.class)
-    public void addFriend(Long userId, Long friendId) {
+    public void addFriend(UUID userId, UUID friendId) {
         this.userRepository.addFriend(userId, friendId);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW,
         rollbackFor = Exception.class)
-    public void deleteFriend(Long userId, Long friendId) {
+    public void deleteFriend(UUID userId, UUID friendId) {
         this.userRepository.deleteFriend(userId, friendId);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW,
         rollbackFor = Exception.class)
     public User createUser(UserCreateDto userCreateDto) {
-        System.out.println(userCreateDto.getEmail());
-        System.out.println(userCreateDto.getUsername());
-        System.out.println(userCreateDto.getFirstname());
-        System.out.println(userCreateDto.getLastname());
-        System.out.println(userCreateDto.getPassword());
         User user = new User();
         user.setEmail(userCreateDto.getEmail());
         user.setFirstName(userCreateDto.getFirstname());

@@ -1,6 +1,7 @@
 package com.rekkme.middleware;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -10,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.UserRepository;
-import com.rekkme.exception.RecordNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,9 +63,8 @@ public class AuthFilter extends OncePerRequestFilter {
 
         // if the cookie is valid
         try {
-            Long cookieLong = Long.parseLong(cookie);
-            User user = this.userRepository.findById(cookieLong)
-                .orElseThrow(() -> new RecordNotFoundException("User", cookieLong));
+            User user = this.userRepository.findById(UUID.fromString(cookie))
+                .orElseThrow(() -> new Exception());
             request.setAttribute("user", user);
             filterChain.doFilter(request, response);
         } catch (Exception e) {

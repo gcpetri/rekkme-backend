@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${app.api.basepath}")
 public class UserController {
 
+    private static final int COOKIE_AGE = 7 * 24 * 60 * 60; // expires in 7 days
+
     @Value("${app.api.basepath}")
     private String basepath;
     
@@ -56,14 +58,10 @@ public class UserController {
         return convertToDto(user);
     }
 
-    /*
-    @GetMapping("/session")
-    public SessionDto getUserFromSession(@RequestAttribute("user") User user) {
-        SessionDto resp = new SessionDto();
-        resp.setSession(convertToDto(user));
-        return resp;
+    @GetMapping("/ping")
+    public ResponseEntity<Object> getLogin() {
+        return ResponseEntity.ok().build();
     }
-    */
 
     @GetMapping("/friends")
     public List<UserDto> getUserFriends(@RequestAttribute("user") User user) {
@@ -105,6 +103,7 @@ public class UserController {
             System.out.println("Found the friend");
             this.userService.deleteFriend(user.getUserId(), friend.getUserId());
             user.getFriends().remove(friend);
+            this.userRepository.save(user);
         }
         return user.getFriends()
             .stream()
@@ -124,20 +123,19 @@ public class UserController {
         }
         Cookie cookie = new Cookie("userid", user.getUserId().toString());
         cookie.setSecure(true);
+        cookie.setMaxAge(COOKIE_AGE);
+        cookie.setPath("/");
         response.addCookie(cookie);
         respDto.setSuccess(true);
         return ResponseEntity.status(HttpStatus.OK).body(respDto);
-    }
-
-    @GetMapping("/login")
-    public ResponseEntity<Object> getLogin() {
-        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Object> userLogout(@RequestAttribute("user") User user, HttpServletResponse response) throws IOException {
         Cookie cookie = new Cookie("userid", null);
         cookie.setSecure(true);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
         response.addCookie(cookie);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -151,8 +149,11 @@ public class UserController {
             respDto.setSuccess(false);
             return ResponseEntity.status(HttpStatus.OK).body(respDto);
         }
+        System.out.println(user.getUserId());
         Cookie cookie = new Cookie("userid", user.getUserId().toString());
+        cookie.setMaxAge(COOKIE_AGE);
         cookie.setSecure(true);
+        cookie.setPath("/");
         response.addCookie(cookie);
         respDto.setSuccess(true);
         return ResponseEntity.status(HttpStatus.OK).body(respDto);

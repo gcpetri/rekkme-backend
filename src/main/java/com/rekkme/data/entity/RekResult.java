@@ -1,12 +1,12 @@
 package com.rekkme.data.entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -22,9 +22,9 @@ import org.hibernate.annotations.DynamicUpdate;
 public class RekResult {
 
     @Id
-    @Column(name="REK_RESULT_ID", updatable=false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long rekResultId;
+    @GeneratedValue
+    @Column(name="REK_RESULT_ID", columnDefinition = "uuid", updatable=false)
+    private UUID rekResultId;
 
     @Column(name="RESULT")
 	private Integer result = 0;
@@ -41,11 +41,11 @@ public class RekResult {
     private Rek rek;
 
 
-    public Long getRekResultId() {
+    public UUID getRekResultId() {
         return this.rekResultId;
     }
 
-    public void setRekResultId(Long rekResultId) {
+    public void setRekResultId(UUID rekResultId) {
         this.rekResultId = rekResultId;
     }
 

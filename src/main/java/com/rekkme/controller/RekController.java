@@ -3,6 +3,7 @@ package com.rekkme.controller;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.rekkme.data.dtos.CommentDto;
@@ -82,7 +83,7 @@ public class RekController {
 
     @GetMapping("/activity")
     public List<RekDto> getActivity(@RequestAttribute("user") User user) {
-        List<Long> userIds = new ArrayList<>();
+        List<UUID> userIds = new ArrayList<>();
         userIds.add(user.getUserId());
         for (User friend : user.getFriends()) {
             userIds.add(friend.getUserId());
@@ -94,10 +95,10 @@ public class RekController {
     }
 
     @GetMapping("/{id}")
-    public RekDto getRekById(@RequestAttribute("user") User user, @PathVariable Long id) {
+    public RekDto getRekById(@RequestAttribute("user") User user, @PathVariable UUID id) {
         List<Rek> reks = this.rekRepository.getReksTo(user.getUserId());
         for (Rek rek : reks) {
-            if (rek.getRekId() == id) {
+            if (rek.getRekId().equals(id)) {
                 return convertToDto(rek);
             }
         }
@@ -107,31 +108,26 @@ public class RekController {
     @PostMapping("/save")
     public List<RekDto> addReks(@RequestAttribute("user") User user,
         @RequestBody RekRequestDto rekReq) {
-        try {
         Category cat = this.categoryRepository.findByNameIgnoreCase(rekReq.getCategory());
         if (cat == null) {
-            throw new RecordNotFoundException("category" + rekReq.getCategory(), 0L);
+            throw new RecordNotFoundException("category" + rekReq.getCategory(), null);
         }
         
         List<Rek> newSavedReks = this.rekService.addReks(rekReq, user, cat);
         return newSavedReks.stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RecordNotFoundException("rek", 0L);
-        }   
     }
 
     @PostMapping("/{rekId}/result")
-    public RekResultDto addRekResult(@RequestAttribute("user") User user, @PathVariable Long rekId,
+    public RekResultDto addRekResult(@RequestAttribute("user") User user, @PathVariable UUID rekId,
         @RequestBody RekResultRequestDto rekResultReq) {
         RekResult rekResult = this.rekService.addRekResult(user, rekId, rekResultReq);
         return convertRekResultToDto(rekResult);
     }
 
     @GetMapping("/{rekId}/result/{resultId}")
-    public RekResultDto getRekResult(@RequestAttribute("user") User user, @PathVariable Long rekId,
+    public RekResultDto getRekResult(@RequestAttribute("user") User user, @PathVariable UUID rekId,
         @PathVariable Long resultId) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
@@ -141,14 +137,14 @@ public class RekController {
     }
 
     @PostMapping("/queue/add/{rekId}")
-    public List<RekDto> addToQueue(@RequestAttribute("user") User user, @PathVariable Long rekId) {
+    public List<RekDto> addToQueue(@RequestAttribute("user") User user, @PathVariable UUID rekId) {
         return this.rekService.addQueue(user, rekId).stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
     }
 
     @PostMapping("/{rekId}/comment")
-    public CommentDto addComment(@RequestAttribute("user") User user, @PathVariable Long rekId,
+    public CommentDto addComment(@RequestAttribute("user") User user, @PathVariable UUID rekId,
         @RequestBody CommentDto commentDto) {
         Comment newComment = rekService.addComment(commentDto, user, rekId);
         return convertCommentToDto(newComment);

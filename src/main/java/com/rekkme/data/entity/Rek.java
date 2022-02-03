@@ -4,13 +4,13 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -28,9 +28,9 @@ import org.hibernate.annotations.DynamicUpdate;
 public class Rek {
 
     @Id
-    @Column(name="REK_ID", updatable=false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long rekId;
+    @GeneratedValue
+    @Column(name="REK_ID", columnDefinition = "uuid", updatable=false)
+    private UUID rekId;
 
     @Column(name="URL", nullable=false)
     private String url;
@@ -88,11 +88,11 @@ public class Rek {
         inverseJoinColumns=@JoinColumn(name="TAG_ID", referencedColumnName="TAG_ID"))
     private Set<Tag> tags = new HashSet<>();
 
-    public Long getRekId() {
+    public UUID getRekId() {
         return this.rekId;
     }
 
-    public void setRekId(Long rekId) {
+    public void setRekId(UUID rekId) {
         this.rekId = rekId;
     }
 

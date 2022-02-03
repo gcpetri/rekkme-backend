@@ -3,6 +3,7 @@ package com.rekkme.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
@@ -46,7 +47,7 @@ public class RekService {
     
     @Transactional(propagation = Propagation.REQUIRES_NEW,
         rollbackFor = Exception.class)
-    public RekResult addRekResult(User user, Long rekId, RekResultRequestDto rekResultReq) {
+    public RekResult addRekResult(User user, UUID rekId, RekResultRequestDto rekResultReq) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
             throw new RecordNotFoundException("rek", rekId);
@@ -120,7 +121,7 @@ public class RekService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW,
         rollbackFor = Exception.class)
-    public Comment addComment(CommentDto commentDto, User user, Long rekId) {
+    public Comment addComment(CommentDto commentDto, User user, UUID rekId) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
             throw new RecordNotFoundException("reks", rekId);
@@ -135,7 +136,7 @@ public class RekService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW,
         rollbackFor = Exception.class)
-    public List<Rek> addQueue(User user, Long rekId) {
+    public List<Rek> addQueue(User user, UUID rekId) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
             throw new RecordNotFoundException("reks", rekId);

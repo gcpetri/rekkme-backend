@@ -1,12 +1,12 @@
 package com.rekkme.data.entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -22,9 +22,9 @@ import org.hibernate.annotations.DynamicUpdate;
 public class Comment {
     
     @Id
-    @Column(name="COMMENT_ID", updatable=false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long commentId;
+    @GeneratedValue
+    @Column(name="COMMENT_ID", columnDefinition = "uuid", updatable=false)
+    private UUID commentId;
 
     @Column(name="MESSAGE", updatable=false)
     private String message;
@@ -41,11 +41,11 @@ public class Comment {
     @JoinColumn(name="USER_ID", referencedColumnName="USER_ID")
     private User user;
 
-    public Long getCommentId() {
+    public UUID getCommentId() {
         return this.commentId;
     }
 
-    public void setCommentId(Long commentId) {
+    public void setCommentId(UUID commentId) {
         this.commentId = commentId;
     }
 

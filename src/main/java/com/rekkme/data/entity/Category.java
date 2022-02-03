@@ -1,9 +1,10 @@
 package com.rekkme.data.entity;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -16,20 +17,20 @@ import org.hibernate.annotations.DynamicUpdate;
 public class Category {
 
     @Id
-    @Column(name="CATEGORY_ID", updatable=false)
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long categoryId;
+    @GeneratedValue
+    @Column(name="CATEGORY_ID", columnDefinition = "uuid", updatable=false)
+    private UUID categoryId;
 
     @Column(name="NAME", nullable=false, unique=true)
     @NotBlank(message="Name is required")
     private String name;
 
 
-    public Long getCategoryId() {
+    public UUID getCategoryId() {
         return this.categoryId;
     }
 
-    public void setCategoryId(Long categoryId) {
+    public void setCategoryId(UUID categoryId) {
         this.categoryId = categoryId;
     }
 
