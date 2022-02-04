@@ -2,26 +2,27 @@ package com.rekkme.data.dtos;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 public class ResultNotificationDto {
 
     private static final DateTimeFormatter dateFormatter = 
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     
-    private Long rekResultId;
+    private UUID rekResultId;
     private String title;
-    private UserDto toUser;
+    private FriendDto toUser;
     private Integer wager;
     private Integer result;
     private Integer diff;
     private String createdOn;
 
 
-    public Long getRekResultId() {
+    public UUID getRekResultId() {
         return this.rekResultId;
     }
 
-    public void setRekResultId(Long rekResultId) {
+    public void setRekResultId(UUID rekResultId) {
         this.rekResultId = rekResultId;
     }
 
@@ -33,11 +34,11 @@ public class ResultNotificationDto {
         this.title = title;
     }
 
-    public UserDto getToUser() {
+    public FriendDto getToUser() {
         return this.toUser;
     }
 
-    public void setToUser(UserDto toUser) {
+    public void setToUser(FriendDto toUser) {
         this.toUser = toUser;
     }
 

@@ -2,23 +2,24 @@ package com.rekkme.data.dtos;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 public class RekResultDto {
 
     private static final DateTimeFormatter dateFormatter = 
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     
-    private Long rekResultId;
+    private UUID rekResultId;
 	private Integer result = 0;
 	private Boolean ko = false;
     private String createdOn;
 
 
-    public Long getRekResultId() {
+    public UUID getRekResultId() {
         return this.rekResultId;
     }
 
-    public void setRekResultId(Long rekResultId) {
+    public void setRekResultId(UUID rekResultId) {
         this.rekResultId = rekResultId;
     }
 

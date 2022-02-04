@@ -5,18 +5,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class RekDto {
 
     private static final DateTimeFormatter dateFormatter = 
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private Long rekId;
+    private UUID rekId;
     private String url;
     private String description;
 	private Integer wager;
-    private UserDto toUser;
-    private UserDto fromUser;
+    private FriendDto toUser;
+    private FriendDto fromUser;
     private CategoryDto category;
     private String createdOn;
     private RekResultDto rekResult;
@@ -27,11 +28,11 @@ public class RekDto {
     private String location;
     private String title;
 
-    public Long getRekId() {
+    public UUID getRekId() {
         return this.rekId;
     }
 
-    public void setRekId(Long rekId) {
+    public void setRekId(UUID rekId) {
         this.rekId = rekId;
     }
 
@@ -51,19 +52,19 @@ public class RekDto {
         this.wager = wager;
     }
 
-    public UserDto getToUser() {
+    public FriendDto getToUser() {
         return this.toUser;
     }
 
-    public void setToUser(UserDto toUser) {
+    public void setToUser(FriendDto toUser) {
         this.toUser = toUser;
     }
 
-    public UserDto getFromUser() {
+    public FriendDto getFromUser() {
         return this.fromUser;
     }
 
-    public void setFromUser(UserDto fromUser) {
+    public void setFromUser(FriendDto fromUser) {
         this.fromUser = fromUser;
     }
 

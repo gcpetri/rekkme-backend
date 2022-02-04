@@ -7,12 +7,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.rekkme.data.dtos.CommentDto;
+import com.rekkme.data.dtos.FriendDto;
 import com.rekkme.data.dtos.RekDto;
 import com.rekkme.data.dtos.RekRequestDto;
 import com.rekkme.data.dtos.RekResultDto;
 import com.rekkme.data.dtos.RekResultRequestDto;
 import com.rekkme.data.dtos.ResultNotificationDto;
-import com.rekkme.data.dtos.UserDto;
 import com.rekkme.data.entity.Category;
 import com.rekkme.data.entity.Comment;
 import com.rekkme.data.entity.Rek;
@@ -164,7 +164,7 @@ public class RekController {
                 note.setTitle(res.getRek().getTitle());
                 note.setWager(res.getRek().getWager());
                 note.setDiff(res.getResult() - res.getRek().getWager());
-                note.setToUser(convertUserToDto(res.getRek().getToUser()));
+                note.setToUser(convertToFriendDto(res.getRek().getToUser()));
                 resp.add(note);
             }
         }
@@ -201,8 +201,8 @@ public class RekController {
         return commentDto;
     }
 
-    private UserDto convertUserToDto(User user) {
-        UserDto userDto = modelMapper.map(user, UserDto.class);
-        return userDto;
+    private FriendDto convertToFriendDto(User user) {
+        FriendDto friendDto = modelMapper.map(user, FriendDto.class);
+        return friendDto;
     }
 }

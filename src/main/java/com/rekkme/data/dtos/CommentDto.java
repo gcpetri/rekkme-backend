@@ -2,23 +2,24 @@ package com.rekkme.data.dtos;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 public class CommentDto {
     
     private static final DateTimeFormatter dateFormatter = 
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private Long commentId;
+    private UUID commentId;
     private String message;
     private String createdOn;
-    private UserDto user;
+    private FriendDto user;
 
 
-    public Long getCommentId() {
+    public UUID getCommentId() {
         return this.commentId;
     }
 
-    public void setCommentId(Long commentId) {
+    public void setCommentId(UUID commentId) {
         this.commentId = commentId;
     }
 
@@ -38,11 +39,11 @@ public class CommentDto {
         this.createdOn = dateFormatter.format(createdOn);
     }
 
-    public UserDto getUser() {
+    public FriendDto getUser() {
         return this.user;
     }
 
-    public void setUser(UserDto user) {
+    public void setUser(FriendDto user) {
         this.user = user;
     }
 

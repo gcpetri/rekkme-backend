@@ -13,4 +13,10 @@ public class ErrorHandler {
     public RecordNotFoundException handleRecordNotFoundException(RecordNotFoundException ce) {
         return ce;
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public UserNotFoundException handleUserNotFoundException(UserNotFoundException ce) {
+        return ce;
+    }
 }

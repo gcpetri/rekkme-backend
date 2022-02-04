@@ -1,12 +1,9 @@
 package com.rekkme.controller;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.PathParam;
 
 import com.rekkme.data.dtos.LoginDto;
 import com.rekkme.data.dtos.LoginResponseDto;
@@ -23,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,60 +59,15 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/friends")
-    public List<UserDto> getUserFriends(@RequestAttribute("user") User user) {
-        return user.getFriends()
-            .stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
-    }
-
-    @PostMapping("/friends/save")
-    public List<UserDto> addUserFriend(@RequestAttribute("user") User user, @PathParam("username") String username) {
-        User friend = this.userRepository.findByUsername(username);
-        if (friend == null) {
-            return user.getFriends().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-        }
-        if (!user.getFriends().contains(friend)) {
-            this.userService.addFriend(user.getUserId(), friend.getUserId());
-        }
-        user.getFriends().add(friend);
-        return user.getFriends()
-            .stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
-    }
-
-    @DeleteMapping("/friends/delete")
-    public List<UserDto> removeUserFriend(@RequestAttribute("user") User user, @PathParam("username") String username) {
-        User friend = this.userRepository.findByUsername(username);
-        if (friend == null) {
-            System.out.println("friend not found");
-            return user.getFriends()
-                .stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-        }
-        if (user.getFriends().contains(friend)) {
-            System.out.println("Found the friend");
-            this.userService.deleteFriend(user.getUserId(), friend.getUserId());
-            user.getFriends().remove(friend);
-            this.userRepository.save(user);
-        }
-        return user.getFriends()
-            .stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
-    }
-
-    @CrossOrigin
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> userLogin(@RequestBody LoginDto loginDto, HttpServletResponse response) {
-        User user = this.userRepository.findByUsername(loginDto.getUsername());
-        Auth auth = this.authRepository.findByUserId(user.getUserId());
         LoginResponseDto respDto = new LoginResponseDto();
+        User user = this.userRepository.findByUsername(loginDto.getUsername());
+        if (user == null) {
+            respDto.setSuccess(false);
+            return ResponseEntity.status(HttpStatus.OK).body(respDto);
+        }
+        Auth auth = this.authRepository.findByUserId(user.getUserId());
         if (!loginDto.getPassword().equals(auth.getPassword())) {
             respDto.setSuccess(false);
             return ResponseEntity.status(HttpStatus.OK).body(respDto);
@@ -140,7 +91,17 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @CrossOrigin
+    @DeleteMapping("/delete")
+    public ResponseEntity<Object> userDelete(@RequestAttribute("user") User user, HttpServletResponse response) throws IOException {
+        this.userService.deleteUser(user);
+        Cookie cookie = new Cookie("userid", null);
+        cookie.setMaxAge(0);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @PostMapping("/login/create")
     public ResponseEntity<Object> userCreate(@RequestBody UserCreateDto userCreateDto, HttpServletResponse response) throws IOException {
         LoginResponseDto respDto = new LoginResponseDto();

@@ -2,14 +2,12 @@ package com.rekkme.data.dtos;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
-public class UserDto {
-
+public class FriendDto {
+    
     private static final DateTimeFormatter dateFormatter = 
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    private UUID userId;
     private String username;
 	private String firstName;
     private String lastName;
@@ -19,14 +17,6 @@ public class UserDto {
     private String imageUrl;
     private String lastLogin;
 
-
-    public UUID getUserId() {
-        return this.userId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
 
     public String getUsername() {
         return this.username;

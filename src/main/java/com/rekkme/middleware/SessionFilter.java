@@ -81,18 +81,17 @@ public class SessionFilter extends OncePerRequestFilter {
 
         // if the cookie is valid
         try {
-            User user = this.userRepository.getById(UUID.fromString(cookie));
-            if (user == null) {
-                sessionDto.setSession(null);
-            } else {
-                sessionDto.setSession(convertToDto(user));
-            }
+            User user = this.userRepository.findById(UUID.fromString(cookie))
+                .orElseThrow(() -> new Exception());
+            System.out.println("found user");
+            sessionDto.setSession(convertToDto(user));
             String json = new ObjectMapper().writeValueAsString(sessionDto);
             response.setContentType(ContentType.APPLICATION_JSON.toString());
             response.getWriter().write(json);
             response.flushBuffer();
             return;
         } catch (Exception e) {
+            sessionDto.setSession(null);
             String json = new ObjectMapper().writeValueAsString(sessionDto);
             response.setContentType(ContentType.APPLICATION_JSON.toString());
             response.getWriter().write(json);

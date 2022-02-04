@@ -36,7 +36,7 @@ public class AuthFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request)
         throws ServletException {
         String path = request.getRequestURI();
-        return path.contains("/login");
+        return path.contains("/login") || path.endsWith("/ping");
     }
 
     @Override

@@ -1,15 +1,17 @@
 package com.rekkme.data.dtos;
 
+import java.util.UUID;
+
 public class CategoryDto {
-    private Long categoryId;
+    private UUID categoryId;
     private String name;
 
 
-    public Long getCategoryId() {
+    public UUID getCategoryId() {
         return this.categoryId;
     }
 
-    public void setCategoryId(Long categoryId) {
+    public void setCategoryId(UUID categoryId) {
         this.categoryId = categoryId;
     }
 

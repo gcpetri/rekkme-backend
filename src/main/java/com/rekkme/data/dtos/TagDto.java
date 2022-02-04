@@ -1,15 +1,17 @@
 package com.rekkme.data.dtos;
 
+import java.util.UUID;
+
 public class TagDto {
     
-    private Long tagId;
+    private UUID tagId;
     private String name;
 
-    public Long getTagId() {
+    public UUID getTagId() {
         return this.tagId;
     }
 
-    public void setTagId(Long tagId) {
+    public void setTagId(UUID tagId) {
         this.tagId = tagId;
     }
 
