@@ -2,41 +2,60 @@ package com.rekkme.service;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import lombok.RequiredArgsConstructor;
 
-import com.rekkme.data.dtos.UserCreateDto;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.rekkme.data.entity.Auth;
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.AuthRepository;
 import com.rekkme.data.repository.UserRepository;
+import com.rekkme.dtos.forms.UserCreateDto;
+import com.rekkme.exception.UserNotFoundException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class UserService {
 
-    private final String defaultAvatar = "https://raw.githubusercontent.com/tatiaris/rekkme/e3bd5b661546a556cd5b842a6d53c39deccf921c/public/avatars/guy-1.png";
+    public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern
+        .compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
-    @Autowired
-    private UserRepository userRepository;
+    @Value("${app.api.avatarUrl}")
+    private String avatarUrl;
 
-    @Autowired
-    private AuthRepository authRepository;
+    private String defaultAvatar = this.avatarUrl + "guy-1.png";
+    private final UserRepository userRepository;
+    private final AuthRepository authRepository;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW,
-        rollbackFor = Exception.class)
-    public User createUser(UserCreateDto userCreateDto) {
+    public User createUser(UserCreateDto userCreateDto) throws Exception {
+
+        // create the user
         User user = new User();
+        if (!validateEmail(userCreateDto.getEmail())) {
+            throw new Exception("invalid email format");
+        }
+        if (userCreateDto.getAvatar() == null) {
+            user.setImageUrl(this.defaultAvatar);
+        } else {
+            user.setImageUrl(this.avatarUrl + userCreateDto.getAvatar());
+        }
         user.setEmail(userCreateDto.getEmail());
         user.setFirstName(userCreateDto.getFirstname());
         user.setLastName(userCreateDto.getLastname());
         user.setUsername(userCreateDto.getUsername());
-        user.setImageUrl(defaultAvatar);
         user.setKos(0);
         user.setRekPoints(0);
         user.setLastLogin(LocalDateTime.now());
+
+        // create the auth
         Auth auth = new Auth();
         User resUser = this.userRepository.save(user);
         auth.setPassword(userCreateDto.getPassword());
@@ -45,9 +64,29 @@ public class UserService {
         return resUser;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW,
-        rollbackFor = Exception.class)
     public void deleteUser(User user) {
         this.userRepository.delete(user);
+    }
+
+    public Map<String, String> getUsernameAndPassword(String username) {
+        User user = this.userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UserNotFoundException(username);
+        }
+        Auth auth = this.authRepository.findByUserId(user.getUserId());
+        if (auth == null || auth.getPassword() == null) {
+            // reset password
+            return null;
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put(username, auth.getPassword());
+        return map;
+    }
+
+    // utils
+
+    private static boolean validateEmail(String emailStr) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return matcher.find();
     }
 }

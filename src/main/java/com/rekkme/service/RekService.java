@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.transaction.annotation.Propagation;
 
-import com.rekkme.data.dtos.CommentDto;
-import com.rekkme.data.dtos.RekRequestDto;
-import com.rekkme.data.dtos.RekResultRequestDto;
 import com.rekkme.data.entity.Category;
 import com.rekkme.data.entity.Comment;
 import com.rekkme.data.entity.Rek;
@@ -22,31 +22,23 @@ import com.rekkme.data.repository.RekRepository;
 import com.rekkme.data.repository.RekResultRepository;
 import com.rekkme.data.repository.TagRepository;
 import com.rekkme.data.repository.UserRepository;
+import com.rekkme.dtos.entity.CommentDto;
+import com.rekkme.dtos.forms.RekRequestDto;
+import com.rekkme.dtos.forms.RekResultRequestDto;
 import com.rekkme.exception.RecordNotFoundException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class RekService {
 
-    @Autowired
-    private RekRepository rekRepository;
+    private final RekRepository rekRepository;
+    private final RekResultRepository rekResultRepository;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
-    @Autowired
-    private RekResultRepository rekResultRepository;
-
-    @Autowired
-    private TagRepository tagRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private CommentRepository commentRepository;
-    
-    @Transactional(propagation = Propagation.REQUIRES_NEW,
-        rollbackFor = Exception.class)
     public RekResult addRekResult(User user, UUID rekId, RekResultRequestDto rekResultReq) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
@@ -119,8 +111,6 @@ public class RekService {
         return newSavedReks;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW,
-        rollbackFor = Exception.class)
     public Comment addComment(CommentDto commentDto, User user, UUID rekId) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
@@ -134,8 +124,6 @@ public class RekService {
         return this.commentRepository.save(comment);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW,
-        rollbackFor = Exception.class)
     public List<Rek> addQueue(User user, UUID rekId) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {

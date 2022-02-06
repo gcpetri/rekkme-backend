@@ -11,11 +11,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.DynamicUpdate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="AUTH")
-@DynamicUpdate
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Auth {
     
     @Id
@@ -29,30 +33,4 @@ public class Auth {
 
     @Column(name="PASSWORD", nullable=false)
     private String password;
-
-
-    public UUID getAuthId() {
-        return this.authId;
-    }
-
-    public void setAuthId(UUID authId) {
-        this.authId = authId;
-    }
-
-    public User getUser() {
-        return this.user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return this.password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
 }

@@ -1,22 +1,20 @@
 package com.rekkme.controller;
 
 import java.io.IOException;
+import java.util.Map;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import com.rekkme.data.dtos.LoginDto;
-import com.rekkme.data.dtos.LoginResponseDto;
-import com.rekkme.data.dtos.UserCreateDto;
-import com.rekkme.data.dtos.UserDto;
-import com.rekkme.data.entity.Auth;
 import com.rekkme.data.entity.User;
-import com.rekkme.data.repository.AuthRepository;
-import com.rekkme.data.repository.UserRepository;
+import com.rekkme.dtos.entity.UserDto;
+import com.rekkme.dtos.forms.LoginDto;
+import com.rekkme.dtos.forms.UserCreateDto;
+import com.rekkme.dtos.responses.LoginResponseDto;
+import com.rekkme.exception.CreateUserException;
+import com.rekkme.security.JwtUtil;
 import com.rekkme.service.UserService;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,28 +24,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("${app.api.basepath}")
+@RequiredArgsConstructor
 public class UserController {
 
-    private static final int COOKIE_AGE = 7 * 24 * 60 * 60; // expires in 7 days
+    @Value("${app.api.cookieAge:604800}")
+    private int COOKIE_AGE;
 
     @Value("${app.api.basepath}")
     private String basepath;
-    
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private AuthRepository authRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ModelMapper modelMapper;
+    private final UserService userService;
+    private final ModelMapper modelMapper;
+    private final JwtUtil jwtUtil;
 
     @GetMapping(value={"/", ""})
     public UserDto getUser(@RequestAttribute("user") User user) {
@@ -62,62 +57,63 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> userLogin(@RequestBody LoginDto loginDto, HttpServletResponse response) {
         LoginResponseDto respDto = new LoginResponseDto();
-        User user = this.userRepository.findByUsername(loginDto.getUsername());
-        if (user == null) {
+
+        Map<String, String> usernameAndPassword = this.userService.getUsernameAndPassword(loginDto.getUsername());
+
+        // no password found
+        if (usernameAndPassword == null) {
             respDto.setSuccess(false);
             return ResponseEntity.status(HttpStatus.OK).body(respDto);
         }
-        Auth auth = this.authRepository.findByUserId(user.getUserId());
-        if (!loginDto.getPassword().equals(auth.getPassword())) {
+
+        // passwords don't match
+        if (!usernameAndPassword.get(loginDto.getUsername()).equals(loginDto.getPassword())) {
             respDto.setSuccess(false);
             return ResponseEntity.status(HttpStatus.OK).body(respDto);
         }
-        Cookie cookie = new Cookie("userid", user.getUserId().toString());
-        cookie.setSecure(true);
-        cookie.setMaxAge(COOKIE_AGE);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+    
+        final String jwt = this.jwtUtil.generateToken(loginDto.getUsername());
         respDto.setSuccess(true);
+        respDto.setJwt(jwt);
+
         return ResponseEntity.status(HttpStatus.OK).body(respDto);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Object> userLogout(@RequestAttribute("user") User user, HttpServletResponse response) throws IOException {
+        /*
         Cookie cookie = new Cookie("userid", null);
         cookie.setSecure(true);
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
+        */
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<Object> userDelete(@RequestAttribute("user") User user, HttpServletResponse response) throws IOException {
         this.userService.deleteUser(user);
-        Cookie cookie = new Cookie("userid", null);
-        cookie.setMaxAge(0);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/login/create")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Object> userCreate(@RequestBody UserCreateDto userCreateDto, HttpServletResponse response) throws IOException {
-        LoginResponseDto respDto = new LoginResponseDto();
-        User user = this.userService.createUser(userCreateDto);
-        if (user == null) {
-            respDto.setSuccess(false);
+        try {
+            LoginResponseDto respDto = new LoginResponseDto();
+            User user = this.userService.createUser(userCreateDto);
+            if (user == null) {
+                respDto.setSuccess(false);
+                return ResponseEntity.status(HttpStatus.OK).body(respDto);
+            }
+            final String jwt = this.jwtUtil.generateToken(user.getUsername());
+            respDto.setSuccess(true);
+            respDto.setJwt(jwt);
             return ResponseEntity.status(HttpStatus.OK).body(respDto);
+        } catch (Exception e) {
+            throw new CreateUserException(e.getMessage());
         }
-        System.out.println(user.getUserId());
-        Cookie cookie = new Cookie("userid", user.getUserId().toString());
-        cookie.setMaxAge(COOKIE_AGE);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        respDto.setSuccess(true);
-        return ResponseEntity.status(HttpStatus.OK).body(respDto);
     }
 
     // utils

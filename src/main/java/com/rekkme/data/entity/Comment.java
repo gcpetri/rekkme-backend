@@ -14,11 +14,15 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import org.hibernate.annotations.DynamicUpdate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="COMMENTS")
-@DynamicUpdate
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Comment {
     
     @Id
@@ -40,44 +44,4 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="USER_ID", referencedColumnName="USER_ID")
     private User user;
-
-    public UUID getCommentId() {
-        return this.commentId;
-    }
-
-    public void setCommentId(UUID commentId) {
-        this.commentId = commentId;
-    }
-
-    public String getMessage() {
-        return this.message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Rek getRek() {
-        return this.rek;
-    }
-
-    public void setRek(Rek rek) {
-        this.rek = rek;
-    }
-
-    public User getUser() {
-        return this.user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public LocalDateTime getCreatedOn() {
-        return createdOn;
-    }
- 
-    public void setCreatedOn(LocalDateTime createdOn) {
-        this.createdOn = createdOn;
-    }
 }

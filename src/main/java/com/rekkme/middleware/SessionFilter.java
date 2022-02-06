@@ -1,107 +1,115 @@
 package com.rekkme.middleware;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
-import java.util.UUID;
+import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rekkme.data.dtos.SessionDto;
-import com.rekkme.data.dtos.UserDto;
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.UserRepository;
+import com.rekkme.dtos.entity.UserDto;
+import com.rekkme.dtos.responses.SessionDto;
+import com.rekkme.exception.RedirectToLoginException;
+import com.rekkme.security.JwtUtil;
+import com.rekkme.service.UserService;
 
 import org.apache.http.entity.ContentType;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
-@Order(1)
 public class SessionFilter extends OncePerRequestFilter {
     
     @Value("${app.api.basepath}")
     private String basepath;
 
-    @Value("${app.api.cookieName}")
-    private String cookieName;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request)
-        throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return !path.endsWith("/session");
+        return !path.endsWith(this.basepath + "/session");
     }
 
-    // !!!!! NOTHING SHOULD GET THROUGH !!!!! //
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws IOException {
+        throws IOException, ServletException {
 
-        // if there are not cookies
-        String cookie = "";
+        System.out.println("Session hit");
+
         SessionDto sessionDto = new SessionDto();
-        if (request.getCookies() == null) {
-            sessionDto.setSession(null);
+        
+        // get the bearer token
+        final String authorizationHeader = request.getHeader("Authorization");
+
+        String jwt = null;
+        String username = null;
+
+        sessionDto.setSession(null);
+        response.setContentType(ContentType.APPLICATION_JSON.toString());
+
+        // there is no bearer token
+        if (authorizationHeader == null || !(authorizationHeader.startsWith("Bearer "))) {
             String json = new ObjectMapper().writeValueAsString(sessionDto);
-            response.setContentType(ContentType.APPLICATION_JSON.toString());
             response.getWriter().write(json);
             response.flushBuffer();
             return;
         }
 
-        // if the cookie is not present
-        for (Cookie c : request.getCookies()) { // redirect to login
-            if (c.getName().equals(this.cookieName)) {
-                cookie = c.getValue();
-            }
-        }
-        if (cookie == null) {
-            sessionDto.setSession(null);
+        jwt = authorizationHeader.substring(7);
+        username = jwtUtil.extractUsername(jwt);
+
+        // could not get username
+        if (username == null) {
             String json = new ObjectMapper().writeValueAsString(sessionDto);
-            response.setContentType(ContentType.APPLICATION_JSON.toString());
             response.getWriter().write(json);
             response.flushBuffer();
             return;
         }
 
-        // if the cookie is valid
-        try {
-            User user = this.userRepository.findById(UUID.fromString(cookie))
-                .orElseThrow(() -> new Exception());
-            System.out.println("found user");
-            sessionDto.setSession(convertToDto(user));
+        Map<String, String> usernameAndPassword = this.userService.getUsernameAndPassword(username);
+
+        // there is no password on record
+        if (usernameAndPassword == null) {
             String json = new ObjectMapper().writeValueAsString(sessionDto);
-            response.setContentType(ContentType.APPLICATION_JSON.toString());
-            response.getWriter().write(json);
-            response.flushBuffer();
-            return;
-        } catch (Exception e) {
-            sessionDto.setSession(null);
-            String json = new ObjectMapper().writeValueAsString(sessionDto);
-            response.setContentType(ContentType.APPLICATION_JSON.toString());
             response.getWriter().write(json);
             response.flushBuffer();
             return;
         }
+
+        // token is invalid
+        if (jwtUtil.validateToken(jwt, username)) {  
+            User user = this.userRepository.findByUsername(username);
+            sessionDto.setSession(this.convertUserToDto(user));
+            String json = new ObjectMapper().writeValueAsString(sessionDto);
+            response.getWriter().write(json);
+            response.flushBuffer();
+            return;
+        }
+        throw new RedirectToLoginException();
     }
 
-    private UserDto convertToDto(User user) {
-        UserDto userDto = modelMapper.map(user, UserDto.class);
+    // utils
+
+    private UserDto convertUserToDto(User user) {
+        UserDto userDto = this.modelMapper.map(user, UserDto.class);
         return userDto;
     }
 }

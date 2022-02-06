@@ -9,11 +9,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
-import org.hibernate.annotations.DynamicUpdate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="CATEGORIES")
-@DynamicUpdate
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Category {
 
     @Id
@@ -24,22 +28,4 @@ public class Category {
     @Column(name="NAME", nullable=false, unique=true)
     @NotBlank(message="Name is required")
     private String name;
-
-
-    public UUID getCategoryId() {
-        return this.categoryId;
-    }
-
-    public void setCategoryId(UUID categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
 }

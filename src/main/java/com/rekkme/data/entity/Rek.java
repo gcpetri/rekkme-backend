@@ -20,11 +20,15 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 
-import org.hibernate.annotations.DynamicUpdate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="REKS")
-@DynamicUpdate
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Rek {
 
     @Id
@@ -87,125 +91,4 @@ public class Rek {
         joinColumns=@JoinColumn(name="REK_ID", referencedColumnName="REK_ID"),
         inverseJoinColumns=@JoinColumn(name="TAG_ID", referencedColumnName="TAG_ID"))
     private Set<Tag> tags = new HashSet<>();
-
-    public UUID getRekId() {
-        return this.rekId;
-    }
-
-    public void setRekId(UUID rekId) {
-        this.rekId = rekId;
-    }
-
-    public Integer getWager() {
-        return this.wager;
-    }
-
-    public void setWager(Integer wager) {
-        this.wager = wager;
-    }
-
-    public User getToUser() {
-        return this.toUser;
-    }
-
-    public void setToUser(User toUser) {
-        this.toUser = toUser;
-    }
-
-    public User getFromUser() {
-        return this.fromUser;
-    }
-
-    public void setFromUser(User fromUser) {
-        this.fromUser = fromUser;
-    }
-
-    public Category getCategory() {
-        return this.category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public LocalDateTime getCreatedOn() {
-        return this.createdOn;
-    }
-
-    public void setCreatedOn(LocalDateTime createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public RekResult getRekResult() {
-        return this.rekResult;
-    }
-
-    public void setRekResult(RekResult rekResult) {
-        this.rekResult = rekResult;
-    }
-
-    public String getUrl() {
-        return this.url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Set<Tag> getTags() {
-        return this.tags;
-    }
-
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
-    }
-
-    public List<Comment> getComments() {
-        return this.comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTitle() {
-        return this.title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getImageUrl() {
-        return this.imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public String getArtist() {
-        return this.artist;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
-    public String getLocation() {
-        return this.location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
 }

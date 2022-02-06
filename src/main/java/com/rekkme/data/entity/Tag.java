@@ -9,11 +9,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
-import org.hibernate.annotations.DynamicUpdate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="TAGS")
-@DynamicUpdate
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Tag {
 
     @Id
@@ -24,22 +28,4 @@ public class Tag {
     @Column(name="NAME", nullable=false, unique=true)
     @NotBlank(message="Name is required")
     private String name;
-
-
-    public UUID getTagId() {
-        return this.tagId;
-    }
-
-    public void setTagId(UUID tagId) {
-        this.tagId = tagId;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
 }

@@ -1,76 +1,84 @@
 package com.rekkme.middleware;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.UserRepository;
+import com.rekkme.exception.RedirectToCreateNewPasswordException;
+import com.rekkme.exception.RedirectToLoginException;
+import com.rekkme.security.JwtUtil;
+import com.rekkme.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
-@Order(2)
 public class AuthFilter extends OncePerRequestFilter {
     
     @Value("${app.api.basepath}")
     private String basepath;
 
-    @Value("${app.api.cookieName}")
-    private String cookieName;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request)
-        throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.contains("/login") || path.endsWith("/ping");
+        return path.endsWith(this.basepath + "/ping") || 
+            path.endsWith(this.basepath + "/session") || path.contains(this.basepath + "/login");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws IOException {
-        // if there are not cookies
-        String cookie = "";
-        if (request.getCookies() == null) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            System.out.println(request.getRequestURL());
-            return;
-        }
+        throws IOException, ServletException {
 
-        // if the cookie is not present
-        for (Cookie c : request.getCookies()) { // redirect to login
-            if (c.getName().equals(this.cookieName)) {
-                cookie = c.getValue();
-            }
-        }
-        if (cookie == null) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return;
-        }
-
-        // if the cookie is valid
-        try {
-            User user = this.userRepository.findById(UUID.fromString(cookie))
-                .orElseThrow(() -> new Exception());
-            request.setAttribute("user", user);
-            filterChain.doFilter(request, response);
-        } catch (Exception e) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return;
-        }
+        System.out.println("AuthFilter hit");
         
+        // get the bearer token
+        final String authorizationHeader = request.getHeader("Authorization");
+
+        String jwt = null;
+        String username = null;
+
+        // there is no bearer token
+        if (authorizationHeader == null || !(authorizationHeader.startsWith("Bearer "))) {
+            throw new RedirectToLoginException();
+        }
+
+        jwt = authorizationHeader.substring(7);
+        username = jwtUtil.extractUsername(jwt);
+
+        // could not get username
+        if (username == null) {
+            throw new RedirectToLoginException();
+        }
+
+        Map<String, String> usernameAndPassword = this.userService.getUsernameAndPassword(username);
+
+        // there is no password on record
+        if (usernameAndPassword == null) {
+            throw new RedirectToCreateNewPasswordException();
+        }
+
+        // token is invalid
+        if (jwtUtil.validateToken(jwt, username)) {  
+            request.setAttribute("user", this.userRepository.findByUsername(username));
+            filterChain.doFilter(request, response);
+            return;
+        }
+        throw new RedirectToLoginException();
     }
 }
