@@ -8,6 +8,7 @@ import com.rekkme.data.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, UUID> { 
 
@@ -43,4 +44,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query(value = "SELECT COUNT(*) FROM FRIEND_REQUESTS WHERE TO_USER_ID = ?1 AND FROM_USER_ID = ?2", nativeQuery = true)
     int getFriendRequest(UUID toUserId, UUID fromUserId);
+
+    @Query(value = "SELECT * FROM USERS u WHERE u.USERNAME SIMILAR TO :qStr OR u.FIRST_NAME SIMILAR TO :qStr OR u.LAST_NAME SIMILAR TO :qStr", nativeQuery = true)
+    List<User> findUserLike(@Param("qStr") String qStr);
+
+    @Query(value = "SELECT * FROM USERS ORDER BY REK_POINTS ASC LIMIT 50", nativeQuery = true)
+    List<User> findTopUsers();
 }

@@ -25,16 +25,4 @@ public class ErrorHandler {
     public CreateUserException handleCreateUserException(CreateUserException ce) {
         return ce;
     }
-
-    @ExceptionHandler(RedirectToCreateNewPasswordException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public RedirectToCreateNewPasswordException handleRedirectToCreateNewPasswordException(RedirectToCreateNewPasswordException ce) {
-        return ce;
-    }
-
-    @ExceptionHandler(RedirectToLoginException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public RedirectToLoginException handleRedirectToLoginException(RedirectToLoginException ce) {
-        return ce;
-    }
 }

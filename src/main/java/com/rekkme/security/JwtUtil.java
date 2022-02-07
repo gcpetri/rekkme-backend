@@ -15,7 +15,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class JwtUtil {
 
-    @Value("${app.api.auth.jwt.expirationTime:36000000}")
+    @Value("${app.api.jwtAge:604800000}")
     private int jwtExpiration;
 
     @Value("${app.api.auth.jwt.secretKey:secret}")

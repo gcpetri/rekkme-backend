@@ -13,4 +13,5 @@ public class CategoryDto {
 
     private UUID categoryId;
     private String name;
+    private String imageUrl;
 }

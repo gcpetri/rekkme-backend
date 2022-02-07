@@ -3,6 +3,7 @@ package com.rekkme.controller;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import com.rekkme.data.entity.User;
@@ -40,6 +41,9 @@ public class UserController {
     @Value("${app.api.basepath}")
     private String basepath;
 
+    @Value("${app.api.cookieName}")
+    private String cookieName;
+
     private final UserService userService;
     private final ModelMapper modelMapper;
     private final JwtUtil jwtUtil;
@@ -76,18 +80,22 @@ public class UserController {
         respDto.setSuccess(true);
         respDto.setJwt(jwt);
 
+        Cookie cookie = new Cookie(this.cookieName, jwt);
+        cookie.setSecure(true);
+        cookie.setMaxAge(this.COOKIE_AGE);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
         return ResponseEntity.status(HttpStatus.OK).body(respDto);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Object> userLogout(@RequestAttribute("user") User user, HttpServletResponse response) throws IOException {
-        /*
-        Cookie cookie = new Cookie("userid", null);
+        Cookie cookie = new Cookie(this.cookieName, null);
         cookie.setSecure(true);
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
-        */
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -110,6 +118,13 @@ public class UserController {
             final String jwt = this.jwtUtil.generateToken(user.getUsername());
             respDto.setSuccess(true);
             respDto.setJwt(jwt);
+
+            Cookie cookie = new Cookie(this.cookieName, jwt);
+            cookie.setSecure(true);
+            cookie.setMaxAge(this.COOKIE_AGE);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
             return ResponseEntity.status(HttpStatus.OK).body(respDto);
         } catch (Exception e) {
             throw new CreateUserException(e.getMessage());

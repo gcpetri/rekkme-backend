@@ -3,8 +3,6 @@ package com.rekkme.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.websocket.server.PathParam;
-
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.entity.UserDto;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
@@ -58,7 +57,7 @@ public class FriendController {
 
     @PostMapping("/requests/toggle")
     public ResponseEntity<Object> makeFriendRequest(@RequestAttribute("user") User user,
-        @PathParam("username") String username) {
+        @RequestParam String username) {
         User toUser = this.userRepository.findByUsername(username);
         if (toUser == null) {
             throw new UserNotFoundException(username);
@@ -75,7 +74,7 @@ public class FriendController {
 
     @PostMapping("/requests/accept")
     public ResponseEntity<Object> acceptFriendRequest(@RequestAttribute("user") User user,
-        @PathParam("username") String username) {
+        @RequestParam String username) {
         User fromUser = this.userRepository.findByUsername(username);
         if (fromUser == null) { // username doesn't exist
             throw new UserNotFoundException(username);
@@ -93,7 +92,7 @@ public class FriendController {
 
     @PostMapping("/requests/reject")
     public ResponseEntity<Object> rejectFriendRequest(@RequestAttribute("user") User user,
-        @PathParam("username") String username) {
+        @RequestParam String username) {
         User fromUser = this.userRepository.findByUsername(username);
         if (fromUser == null) { // username doesn't exist
             throw new UserNotFoundException(username);
@@ -108,7 +107,7 @@ public class FriendController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<Object> deleteFriend(@RequestAttribute("user") User user,
-        @PathParam("username") String username) {
+        @RequestParam String username) {
         User friend = this.userRepository.findByUsername(username);
         if (friend == null) {
             throw new UserNotFoundException(username);

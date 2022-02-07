@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.local
     ports:
-      - ${PORT}:8080
+      - ${PORT}:${PORT}
     container_name: rekkme-backend-app
     depends_on:
       - db
@@ -16,8 +16,9 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-      - SPRING_JPA_DATABASE-PLATFORM=${SPRING_JPA_DATABASE-PLATFORM}
+      - SPRING_JPA_DATABASE_PLATFORM=${SPRING_JPA_DATABASE_PLATFORM}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - PORT=${PORT}
           
   db:
     image: 'postgres:13.1-alpine'

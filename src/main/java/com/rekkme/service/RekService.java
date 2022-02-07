@@ -81,6 +81,9 @@ public class RekService {
         this.tagRepository.saveAll(newTags);
 
         for (String username : rekReq.getUsernames()) {
+            if (username.equals(user.getUsername())) { // can't recommend to yourself
+                continue;
+            }
             User toUser = this.userRepository.findByUsername(username);
             Rek rek = new Rek();
             rek.setCreatedOn(LocalDateTime.now());
@@ -132,5 +135,21 @@ public class RekService {
         List<Long> queueOrder = this.rekRepository.getQueueOrders(user.getUserId());
         this.rekRepository.addToQueue(user.getUserId(), rekId, queueOrder.size());
         return this.rekRepository.getQueue(user.getUserId());
+    }
+
+    public void toggleLike(User user, UUID rekId) {
+        Rek rek = this.rekRepository.getById(rekId);
+        if (rek == null) {
+            throw new RecordNotFoundException("reks", rekId);
+        }
+        if (rek.getFromUser().getUserId().equals(user.getUserId())) { // can't like your own rek
+            return;
+        }
+        int count = this.rekRepository.getLike(user.getUserId(), rekId);
+        if (count == 0) {
+            this.rekRepository.addLike(user.getUserId(), rekId);
+        } else {
+            this.rekRepository.deleteLike(user.getUserId(), rekId);
+        }
     }
 }

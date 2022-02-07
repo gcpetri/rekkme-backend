@@ -10,4 +10,7 @@ public class RecordNotFoundException extends RuntimeException {
     public RecordNotFoundException(String entityName, UUID id) {
         super("Could not find record of " + entityName + " with id " + id.toString());
     }
+    public RecordNotFoundException(String entityName, String name) {
+        super("Could not find record of " + entityName + " with name " + name);
+    }
 }

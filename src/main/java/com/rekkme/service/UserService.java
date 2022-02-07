@@ -28,6 +28,9 @@ public class UserService {
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern
         .compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
+    private static final Pattern VALID_USERNAME_REGEX = Pattern
+        .compile("^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$");
+
     @Value("${app.api.avatarUrl}")
     private String avatarUrl;
 
@@ -41,6 +44,9 @@ public class UserService {
         User user = new User();
         if (!validateEmail(userCreateDto.getEmail())) {
             throw new Exception("invalid email format");
+        }
+        if (!validateUsername(userCreateDto.getUsername())) {
+            throw new Exception("invalid username format");
         }
         if (userCreateDto.getAvatar() == null) {
             user.setImageUrl(this.defaultAvatar);
@@ -87,6 +93,11 @@ public class UserService {
 
     private static boolean validateEmail(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return matcher.find();
+    }
+
+    private static boolean validateUsername(String usernameStr) {
+        Matcher matcher = VALID_USERNAME_REGEX.matcher(usernameStr);
         return matcher.find();
     }
 }

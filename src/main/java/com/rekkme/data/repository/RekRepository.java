@@ -32,4 +32,21 @@ public interface RekRepository extends JpaRepository<Rek, UUID> {
 
     @Query(value = "SELECT * FROM REKS r WHERE r.TO_USER_ID IN ?1 OR r.FROM_USER_ID IN ?1 ORDER BY r.CREATED_ON DESC", nativeQuery = true)
     List<Rek> getActivity(List<UUID> userIds);
+
+    @Query(value = "SELECT * FROM REKS WHERE CATEGORY_ID = ?1 ORDER BY CREATED_ON DESC LIMIT 50", nativeQuery = true)
+    List<Rek> findByCategory(UUID categoryId);
+
+    @Query(value = "SELECT * FROM REKS ORDER BY CREATED_ON DESC LIMIT 75", nativeQuery = true)
+    List<Rek> findLatestReks();
+
+    @Modifying
+    @Query(value = "INSERT INTO LIKES (USER_ID, REK_ID) VALUES (?1, ?2)", nativeQuery = true)
+    void addLike(UUID userId, UUID rekId);
+
+    @Modifying
+    @Query(value = "DELETE FROM LIKES WHERE USER_ID = ?1 AND REK_ID = ?2", nativeQuery = true)
+    void deleteLike(UUID userId, UUID rekId);
+
+    @Query(value = "SELECT COUNT(*) FROM LIKES WHERE USER_ID = ?1 AND REK_ID = ?1", nativeQuery = true)
+    int getLike(UUID userId, UUID rekId);
 }

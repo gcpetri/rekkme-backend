@@ -20,6 +20,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 
+import org.hibernate.annotations.Formula;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -91,4 +93,8 @@ public class Rek {
         joinColumns=@JoinColumn(name="REK_ID", referencedColumnName="REK_ID"),
         inverseJoinColumns=@JoinColumn(name="TAG_ID", referencedColumnName="TAG_ID"))
     private Set<Tag> tags = new HashSet<>();
+
+    @Column(name="NUM_LIKES")
+    @Formula(value = "(SELECT COUNT(*) FROM LIKES l WHERE l.REK_ID=REK_ID)")
+    private Long numLikes;
 }

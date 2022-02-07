@@ -26,6 +26,7 @@ import com.rekkme.exception.RecordNotFoundException;
 import com.rekkme.service.RekService;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,30 +49,34 @@ public class RekController {
     private final RekResultRepository rekResultRepository;
     private final UserRepository userRepository;
 
-    @GetMapping(value={"", "/", "/list"})
+    // get reks to this user
+    @GetMapping(value={"", "/", "/to"})
     public List<RekDto> getReks(@RequestAttribute("user") User user) {
         return this.rekRepository.getReksTo(user.getUserId())
             .stream()
-            .map(this::convertToDto)
+            .map(r -> convertRekToDto(r, user))
             .collect(Collectors.toList());
     }
 
+    // get reks from this user
     @GetMapping("/from")
     public List<RekDto> getReksFrom(@RequestAttribute("user") User user) {
         return this.rekRepository.getReksFrom(user.getUserId())
             .stream()
-            .map(this::convertToDto)
+            .map(r -> convertRekToDto(r, user))
             .collect(Collectors.toList());
     }
 
+    /*
     @GetMapping("/queue")
     public List<RekDto> getRekQueue(@RequestAttribute("user") User user) {
         return this.rekRepository.getQueue(user.getUserId())
             .stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
-    }
+    } */
 
+    // get the reks associated with this user and their friends
     @GetMapping("/activity")
     public List<RekDto> getActivity(@RequestAttribute("user") User user) {
         List<UUID> userIds = new ArrayList<>();
@@ -81,7 +86,7 @@ public class RekController {
         }
         return this.rekRepository.getActivity(userIds)
             .stream()
-            .map(this::convertToDto)
+            .map(r -> convertRekToDto(r, user))
             .collect(Collectors.toList());
     }
 
@@ -90,7 +95,7 @@ public class RekController {
         List<Rek> reks = this.rekRepository.getReksTo(user.getUserId());
         for (Rek rek : reks) {
             if (rek.getRekId().equals(id)) {
-                return convertToDto(rek);
+                return convertRekToDto(rek, user);
             }
         }
         throw new RecordNotFoundException("Rek", id);
@@ -101,12 +106,12 @@ public class RekController {
         @RequestBody RekRequestDto rekReq) {
         Category cat = this.categoryRepository.findByNameIgnoreCase(rekReq.getCategory());
         if (cat == null) {
-            throw new RecordNotFoundException("category" + rekReq.getCategory(), null);
+            throw new RecordNotFoundException("Category", rekReq.getCategory());
         }
         
         List<Rek> newSavedReks = this.rekService.addReks(rekReq, user, cat);
         return newSavedReks.stream()
-            .map(this::convertToDto)
+            .map(r -> convertRekToDto(r, user))
             .collect(Collectors.toList());
     }
 
@@ -127,18 +132,25 @@ public class RekController {
         return convertRekResultToDto(rek.getRekResult());
     }
 
+    /*
     @PostMapping("/queue/add/{rekId}")
     public List<RekDto> addToQueue(@RequestAttribute("user") User user, @PathVariable UUID rekId) {
         return this.rekService.addQueue(user, rekId).stream()
             .map(this::convertToDto)
             .collect(Collectors.toList());
-    }
+    } */
 
     @PostMapping("/{rekId}/comment")
     public CommentDto addComment(@RequestAttribute("user") User user, @PathVariable UUID rekId,
         @RequestBody CommentDto commentDto) {
         Comment newComment = rekService.addComment(commentDto, user, rekId);
         return convertCommentToDto(newComment);
+    }
+
+    @PostMapping("/{rekId}/like")
+    public ResponseEntity<Object> toggleLike(@RequestAttribute("user") User user, @PathVariable UUID rekId) {
+        this.rekService.toggleLike(user, rekId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/results/new")
@@ -166,8 +178,14 @@ public class RekController {
 
     // utils
 
-    private RekDto convertToDto(Rek rek) {
+    private RekDto convertRekToDto(Rek rek, User user) {
         RekDto rekDto = modelMapper.map(rek, RekDto.class);
+        if (user == null) {
+            return rekDto;
+        }
+        if (this.rekRepository.getLike(user.getUserId(), rek.getRekId()) > 0) {
+            rekDto.setLiked(true);
+        }
         return rekDto;
     }
 
@@ -175,17 +193,6 @@ public class RekController {
         RekResultDto rekDto = modelMapper.map(rek, RekResultDto.class);
         return rekDto;
     }
-
-    /*
-    private Rek convertToEntity(RekDto challengeDto) throws ParseException {
-        Rek rek = modelMapper.map(challengeDto, Rek.class);
-        return rek;
-    }
-
-    private Comment convertCommentToEntity(CommentDto commentDto) {
-        Comment comment = modelMapper.map(commentDto, Comment.class);
-        return comment;
-    } */
 
     private CommentDto convertCommentToDto(Comment comment) {
         CommentDto commentDto = modelMapper.map(comment, CommentDto.class);

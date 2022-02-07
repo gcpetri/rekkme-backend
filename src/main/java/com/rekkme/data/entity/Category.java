@@ -28,4 +28,7 @@ public class Category {
     @Column(name="NAME", nullable=false, unique=true)
     @NotBlank(message="Name is required")
     private String name;
+
+    @Column(name="IMAGE_URL")
+    private String imageUrl;
 }
