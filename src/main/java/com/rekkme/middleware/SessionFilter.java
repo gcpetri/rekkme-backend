@@ -103,6 +103,12 @@ public class SessionFilter extends OncePerRequestFilter {
         // token is invalid
         if (jwtUtil.validateToken(jwt, username)) {  
             User user = this.userRepository.findByUsername(username);
+            if (user == null) {
+                String json = new ObjectMapper().writeValueAsString(sessionDto);
+                response.getWriter().write(json);
+                response.flushBuffer();
+                return;
+            }
             sessionDto.setSession(this.convertUserToDto(user));
             String json = new ObjectMapper().writeValueAsString(sessionDto);
             response.getWriter().write(json);

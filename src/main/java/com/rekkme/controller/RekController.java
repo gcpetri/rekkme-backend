@@ -26,6 +26,7 @@ import com.rekkme.exception.RecordNotFoundException;
 import com.rekkme.service.RekService;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +43,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RekController {
     
+    @Autowired
     private final RekRepository rekRepository;
+
     private final ModelMapper modelMapper;
     private final CategoryRepository categoryRepository;
     private final RekService rekService;
@@ -52,18 +55,18 @@ public class RekController {
     // get reks to this user
     @GetMapping(value={"", "/", "/to"})
     public List<RekDto> getReks(@RequestAttribute("user") User user) {
-        return this.rekRepository.getReksTo(user.getUserId())
+        return this.rekRepository.findReksTo(user.getUserId())
             .stream()
-            .map(r -> convertRekToDto(r, user))
+            .map(r -> this.convertRekToDto(r, user))
             .collect(Collectors.toList());
     }
 
     // get reks from this user
     @GetMapping("/from")
     public List<RekDto> getReksFrom(@RequestAttribute("user") User user) {
-        return this.rekRepository.getReksFrom(user.getUserId())
+        return this.rekRepository.findReksFrom(user.getUserId())
             .stream()
-            .map(r -> convertRekToDto(r, user))
+            .map(r -> this.convertRekToDto(r, user))
             .collect(Collectors.toList());
     }
 
@@ -86,16 +89,16 @@ public class RekController {
         }
         return this.rekRepository.getActivity(userIds)
             .stream()
-            .map(r -> convertRekToDto(r, user))
+            .map(r -> this.convertRekToDto(r, user))
             .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public RekDto getRekById(@RequestAttribute("user") User user, @PathVariable UUID id) {
-        List<Rek> reks = this.rekRepository.getReksTo(user.getUserId());
+        List<Rek> reks = this.rekRepository.findReksTo(user.getUserId());
         for (Rek rek : reks) {
             if (rek.getRekId().equals(id)) {
-                return convertRekToDto(rek, user);
+                return this.convertRekToDto(rek, user);
             }
         }
         throw new RecordNotFoundException("Rek", id);
@@ -124,7 +127,7 @@ public class RekController {
 
     @GetMapping("/{rekId}/result/{resultId}")
     public RekResultDto getRekResult(@RequestAttribute("user") User user, @PathVariable UUID rekId,
-        @PathVariable Long resultId) {
+        @PathVariable UUID resultId) {
         Rek rek = this.rekRepository.getById(rekId);
         if (rek == null) {
             throw new RecordNotFoundException("rek", rekId);
@@ -179,10 +182,12 @@ public class RekController {
     // utils
 
     private RekDto convertRekToDto(Rek rek, User user) {
+        System.out.println("converting to dto");
         RekDto rekDto = modelMapper.map(rek, RekDto.class);
         if (user == null) {
             return rekDto;
         }
+        System.out.println("getting like");
         if (this.rekRepository.getLike(user.getUserId(), rek.getRekId()) > 0) {
             rekDto.setLiked(true);
         }

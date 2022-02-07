@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.transaction.annotation.Propagation;
-
 import com.rekkme.data.entity.Category;
 import com.rekkme.data.entity.Comment;
 import com.rekkme.data.entity.Rek;
@@ -60,9 +58,6 @@ public class RekService {
         return rekResult;
     }
 
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW,
-        rollbackFor = Exception.class)
     public List<Rek> addReks(RekRequestDto rekReq, User user, Category cat) {
         List<Rek> newReks = new ArrayList<>(); 
 
@@ -151,5 +146,9 @@ public class RekService {
         } else {
             this.rekRepository.deleteLike(user.getUserId(), rekId);
         }
+    }
+
+    public List<Rek> findReksTo(UUID userId) {
+        return this.rekRepository.findReksTo(userId);
     }
 }

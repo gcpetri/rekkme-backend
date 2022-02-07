@@ -2,11 +2,14 @@ package com.rekkme.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.entity.UserDto;
+import com.rekkme.exception.RecordNotFoundException;
+import com.rekkme.exception.UserNotFoundException;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,13 +27,13 @@ public class UserQueryController {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     
-    @GetMapping
+    @RequestMapping(value="", params="q")
     public List<UserDto> queryUsersByUsername(@RequestParam String q) {
         System.out.println("Query: " + q);
         String[] strArr = q.split("\\s+");
         String regexStr = "%(";
         for (int i = 0; i < strArr.length; i++) {
-            regexStr += "(" + strArr[i] + ")";
+            regexStr += "(" + strArr[i].toLowerCase() + ")";
             if (i != strArr.length - 1) regexStr += "|";
         }
         regexStr += ")%";
@@ -52,6 +55,21 @@ public class UserQueryController {
             .collect(Collectors.toList());
     }
 
+    @RequestMapping(value="", params="username")
+    public UserDto getUserbyUsername(@RequestParam String username) {
+        User user = this.userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UserNotFoundException(username);
+        }
+        return this.convertToUserDto(user);
+    }
+
+    @RequestMapping(value="", params="userid")
+    public UserDto getUserbyUserId(@RequestParam String userid) {
+        User user = this.userRepository.findById(UUID.fromString(userid))
+            .orElseThrow(() -> new RecordNotFoundException("Users", UUID.fromString(userid)));
+        return this.convertToUserDto(user);
+    }
 
     // utils
 

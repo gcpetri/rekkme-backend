@@ -23,12 +23,14 @@ import javax.validation.constraints.Min;
 import org.hibernate.annotations.Formula;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="REKS")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Rek {
@@ -96,5 +98,5 @@ public class Rek {
 
     @Column(name="NUM_LIKES")
     @Formula(value = "(SELECT COUNT(*) FROM LIKES l WHERE l.REK_ID=REK_ID)")
-    private Long numLikes;
+    private Long numLikes = 0L;
 }

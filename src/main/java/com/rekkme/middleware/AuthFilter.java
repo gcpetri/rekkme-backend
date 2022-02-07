@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.responses.RedirectResponseDto;
 import com.rekkme.security.JwtUtil;
@@ -80,6 +81,7 @@ public class AuthFilter extends OncePerRequestFilter {
         // jwt = authorizationHeader.substring(7);
         jwt = cookieStr;
         username = jwtUtil.extractUsername(jwt);
+        System.out.println(username);
 
         // could not get username
         if (username == null) {
@@ -104,8 +106,18 @@ public class AuthFilter extends OncePerRequestFilter {
         }
 
         // token is invalid
-        if (jwtUtil.validateToken(jwt, username)) {  
-            request.setAttribute("user", this.userRepository.findByUsername(username));
+        if (jwtUtil.validateToken(jwt, username)) { 
+            User user = this.userRepository.findByUsername(username);
+            if (user == null) {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                redirectResponseDto.setAction("LOGIN");
+                String json = new ObjectMapper().writeValueAsString(redirectResponseDto);
+                response.getWriter().write(json);
+                response.flushBuffer();
+                return;
+            }
+            System.out.println(user.getUserId());
+            request.setAttribute("user", user);
             filterChain.doFilter(request, response);
             return;
         }

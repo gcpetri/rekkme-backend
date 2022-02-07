@@ -34,7 +34,7 @@ public class UserService {
     @Value("${app.api.avatarUrl}")
     private String avatarUrl;
 
-    private String defaultAvatar = this.avatarUrl + "guy-1.png";
+    private String defaultAvatar = "guy-1.png";
     private final UserRepository userRepository;
     private final AuthRepository authRepository;
 
@@ -49,7 +49,7 @@ public class UserService {
             throw new Exception("invalid username format");
         }
         if (userCreateDto.getAvatar() == null) {
-            user.setImageUrl(this.defaultAvatar);
+            user.setImageUrl(this.avatarUrl + this.defaultAvatar);
         } else {
             user.setImageUrl(this.avatarUrl + userCreateDto.getAvatar());
         }

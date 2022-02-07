@@ -15,10 +15,10 @@ public interface RekRepository extends JpaRepository<Rek, UUID> {
     Rek getRekById(UUID rekId);
 
     @Query(value = "SELECT * FROM REKS r WHERE r.TO_USER_ID = ?1", nativeQuery = true)
-    List<Rek> getReksTo(UUID userId);
+    List<Rek> findReksTo(UUID userId);
 
     @Query(value = "SELECT * FROM REKS r WHERE r.FROM_USER_ID = ?1", nativeQuery = true)
-    List<Rek> getReksFrom(UUID userId);
+    List<Rek> findReksFrom(UUID userId);
 
     @Query(value = "SELECT * FROM REKS LEFT JOIN USER_REK_QUEUES ON REKS.REK_ID = USER_REK_QUEUES.REK_ID WHERE USER_REK_QUEUES.USER_ID = ?1 ORDER BY USER_REK_QUEUES.QUEUE_ORDER ASC", nativeQuery = true)
     List<Rek> getQueue(UUID userId);

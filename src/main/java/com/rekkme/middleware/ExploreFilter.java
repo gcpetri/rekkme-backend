@@ -9,6 +9,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.UserRepository;
 import com.rekkme.security.JwtUtil;
 import com.rekkme.service.UserService;
@@ -81,7 +82,12 @@ public class ExploreFilter extends OncePerRequestFilter {
         }
 
         // token is invalid
-        if (jwtUtil.validateToken(jwt, username)) {  
+        if (jwtUtil.validateToken(jwt, username)) {
+            User user = this.userRepository.findByUsername(username);
+            if (user == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             request.setAttribute("user", this.userRepository.findByUsername(username));
             filterChain.doFilter(request, response);
             return;

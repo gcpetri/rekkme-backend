@@ -121,7 +121,7 @@ public class FriendController {
     // utils
 
     private UserDto convertToUserDto(User user) {
-        UserDto friendDto = modelMapper.map(user, UserDto.class);
-        return friendDto;
+        UserDto userDto = modelMapper.map(user, UserDto.class);
+        return userDto;
     }
 }
