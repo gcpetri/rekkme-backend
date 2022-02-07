@@ -66,6 +66,9 @@ public class User {
     @Column(name="IMAGE_URL")
     private String imageUrl;
 
+    @Column(name="IS_PUBLIC", nullable = false)
+    private Boolean isPublic = true;
+
     @Column(name="LAST_LOGIN")
     private LocalDateTime lastLogin;
 }

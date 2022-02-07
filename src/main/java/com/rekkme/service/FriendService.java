@@ -25,11 +25,9 @@ public class FriendService {
 
     public void addFriend(UUID userId, UUID friendId) {
         this.userRepository.addFriend(userId, friendId);
-        this.userRepository.addFriend(friendId, userId);
     }
 
     public void deleteFriend(UUID userId, UUID friendId) {
         this.userRepository.deleteFriend(userId, friendId);
-        this.userRepository.deleteFriend(friendId, userId);
     }
 }

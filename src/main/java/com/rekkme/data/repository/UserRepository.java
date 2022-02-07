@@ -28,11 +28,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     User findByUsername(String username);
 
-    @Query(value = "SELECT * FROM FRIEND_REQUESTS LEFT JOIN USERS ON USERS.USER_ID = FRIEND_REQUESTS.TO_USER_ID WHERE FRIEND_REQUESTS.TO_USER_ID = ?1", nativeQuery = true)
-    List<User> getFriendRequestsTo(UUID fromUserId);
+    @Query(value = "SELECT * FROM FRIEND_REQUESTS LEFT JOIN USERS ON USERS.USER_ID = FRIEND_REQUESTS.FROM_USER_ID WHERE FRIEND_REQUESTS.TO_USER_ID = ?1", nativeQuery = true)
+    List<User> getFriendRequestsTo(UUID toUserId);
 
     @Query(value = "SELECT * FROM FRIEND_REQUESTS LEFT JOIN USERS ON USERS.USER_ID = FRIEND_REQUESTS.TO_USER_ID WHERE FRIEND_REQUESTS.FROM_USER_ID = ?1", nativeQuery = true)
-    List<User> getFriendRequestsFrom(UUID toUserId);
+    List<User> getFriendRequestsFrom(UUID fromUserId);
 
     @Modifying
     @Query(value = "INSERT INTO FRIEND_REQUESTS (TO_USER_ID, FROM_USER_ID) VALUES (?1, ?2)", nativeQuery = true)
@@ -50,4 +50,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query(value = "SELECT * FROM USERS ORDER BY REK_POINTS DESC LIMIT 50", nativeQuery = true)
     List<User> findTopUsers();
+
+    @Query(value = "SELECT * FROM USER_FRIENDS LEFT JOIN USERS ON USERS.USER_ID = USER_FRIENDS.USER_ID WHERE USER_FRIENDS.FRIEND_ID = ?1", nativeQuery = true)
+    List<User> findCrowd(UUID userId);
+
+    @Query(value = "SELECT COUNT(*) FROM USER_FRIENDS WHERE FRIEND_ID = ?1", nativeQuery = true)
+    int findNumCrowd(UUID userId);
+
+    @Query(value = "SELECT COUNT(*) FROM USER_FRIENDS WHERE USER_ID = ?1 AND FRIEND_ID = ?2", nativeQuery = true)
+    int getFriend(UUID userId, UUID friendId);
 }

@@ -25,4 +25,16 @@ public class ErrorHandler {
     public CreateUserException handleCreateUserException(CreateUserException ce) {
         return ce;
     }
+
+    @ExceptionHandler(FriendException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public FriendException handleFriendException(FriendException ce) {
+        return ce;
+    }
+
+    @ExceptionHandler(ResultAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResultAlreadyExistsException handleResultAlreadyExistsException(ResultAlreadyExistsException ce) {
+        return ce;
+    }
 }

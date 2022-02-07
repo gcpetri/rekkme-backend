@@ -51,11 +51,12 @@ public class SessionFilter extends OncePerRequestFilter {
         return !path.endsWith(this.basepath + "/session");
     }
 
+    // !!! Nothing Should Go Through !!!
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws IOException, ServletException {
 
-        System.out.println("Session hit");
+        System.out.println("SessionFilter hit");
 
         SessionDto sessionDto = new SessionDto();
         
@@ -90,7 +91,15 @@ public class SessionFilter extends OncePerRequestFilter {
             return;
         }
 
-        Map<String, String> usernameAndPassword = this.userService.getUsernameAndPassword(username);
+        Map<String, String> usernameAndPassword = null;
+        try {
+            usernameAndPassword = this.userService.getUsernameAndPassword(username);
+        } catch (Exception e) {
+            String json = new ObjectMapper().writeValueAsString(sessionDto);
+            response.getWriter().write(json);
+            response.flushBuffer();
+            return;
+        }
 
         // there is no password on record
         if (usernameAndPassword == null) {

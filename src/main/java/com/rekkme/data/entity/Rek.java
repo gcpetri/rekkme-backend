@@ -2,7 +2,6 @@ package com.rekkme.data.entity;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,8 +18,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
-
-import org.hibernate.annotations.Formula;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -88,15 +85,11 @@ public class Rek {
         targetEntity=Comment.class,
         cascade=CascadeType.ALL,
         orphanRemoval=true)
-    private List<Comment> comments;
+    private Set<Comment> comments = new HashSet<>();
 
     @ManyToMany(cascade=CascadeType.MERGE, fetch=FetchType.LAZY)
     @JoinTable(name="REK_TAG_LINKS",
         joinColumns=@JoinColumn(name="REK_ID", referencedColumnName="REK_ID"),
         inverseJoinColumns=@JoinColumn(name="TAG_ID", referencedColumnName="TAG_ID"))
     private Set<Tag> tags = new HashSet<>();
-
-    @Column(name="NUM_LIKES")
-    @Formula(value = "(SELECT COUNT(*) FROM LIKES l WHERE l.REK_ID=REK_ID)")
-    private Long numLikes = 0L;
 }

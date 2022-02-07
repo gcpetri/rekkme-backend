@@ -18,4 +18,5 @@ public class UserCreateDto {
     private String lastname;
     private String email;
     private String avatar;
+    private Boolean isPublic;
 }

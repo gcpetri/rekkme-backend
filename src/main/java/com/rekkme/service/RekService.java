@@ -24,6 +24,8 @@ import com.rekkme.dtos.entity.CommentDto;
 import com.rekkme.dtos.forms.RekRequestDto;
 import com.rekkme.dtos.forms.RekResultRequestDto;
 import com.rekkme.exception.RecordNotFoundException;
+import com.rekkme.exception.ResultAlreadyExistsException;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -38,11 +40,13 @@ public class RekService {
     private final CommentRepository commentRepository;
 
     public RekResult addRekResult(User user, UUID rekId, RekResultRequestDto rekResultReq) {
-        Rek rek = this.rekRepository.getById(rekId);
-        if (rek == null) {
-            throw new RecordNotFoundException("rek", rekId);
-        }
+        Rek rek = this.rekRepository.findById(rekId)
+            .orElseThrow(() -> new RecordNotFoundException("Reks", rekId));
         System.out.println("found rek");
+        if (rek.getRekResult() != null) {
+            throw new ResultAlreadyExistsException();
+        }
+        System.out.println("rek result does not yet exist");
         RekResult rekRes = new RekResult();
         rekRes.setKo(false);
         rekRes.setResult(rekResultReq.getResult());
@@ -50,6 +54,8 @@ public class RekService {
         rekRes.setRek(rek);
         RekResult rekResult = this.rekResultRepository.save(rekRes);
         System.out.println("saved result");
+
+        // TO-DO figure out this points system
         User fromUser = rek.getFromUser();
         rek.setRekResult(rekResult);
         fromUser.setRekPoints(fromUser.getRekPoints() + (rekRes.getResult() - rek.getWager()));
@@ -77,9 +83,16 @@ public class RekService {
 
         for (String username : rekReq.getUsernames()) {
             if (username.equals(user.getUsername())) { // can't recommend to yourself
+                System.out.println("tried to recommend to self");
                 continue;
             }
+
             User toUser = this.userRepository.findByUsername(username);
+            
+            if (this.userRepository.getFriend(user.getUserId(), toUser.getUserId()) == 0) { // can't send a rekk to someone who's not your friend
+                System.out.println("tried to recommend to not a friend");
+                continue;
+            }
             Rek rek = new Rek();
             rek.setCreatedOn(LocalDateTime.now());
             rek.setArtist(rekReq.getArtist());
@@ -110,10 +123,8 @@ public class RekService {
     }
 
     public Comment addComment(CommentDto commentDto, User user, UUID rekId) {
-        Rek rek = this.rekRepository.getById(rekId);
-        if (rek == null) {
-            throw new RecordNotFoundException("reks", rekId);
-        }
+        Rek rek = this.rekRepository.findById(rekId)
+            .orElseThrow(() -> new RecordNotFoundException("Reks", rekId));
         Comment comment = new Comment();
         comment.setCreatedOn(LocalDateTime.now());
         comment.setMessage(commentDto.getMessage());
@@ -122,28 +133,28 @@ public class RekService {
         return this.commentRepository.save(comment);
     }
 
+    /*
     public List<Rek> addQueue(User user, UUID rekId) {
-        Rek rek = this.rekRepository.getById(rekId);
-        if (rek == null) {
-            throw new RecordNotFoundException("reks", rekId);
-        }
+        this.rekRepository.findById(rekId)
+            .orElseThrow(() -> new RecordNotFoundException("Reks", rekId));
         List<Long> queueOrder = this.rekRepository.getQueueOrders(user.getUserId());
         this.rekRepository.addToQueue(user.getUserId(), rekId, queueOrder.size());
         return this.rekRepository.getQueue(user.getUserId());
-    }
+    } */
 
     public void toggleLike(User user, UUID rekId) {
-        Rek rek = this.rekRepository.getById(rekId);
-        if (rek == null) {
-            throw new RecordNotFoundException("reks", rekId);
-        }
+        Rek rek = this.rekRepository.findById(rekId)
+            .orElseThrow(() -> new RecordNotFoundException("Reks", rekId));
         if (rek.getFromUser().getUserId().equals(user.getUserId())) { // can't like your own rek
             return;
         }
         int count = this.rekRepository.getLike(user.getUserId(), rekId);
+        System.out.println(count);
         if (count == 0) {
+            System.out.println("adding like");
             this.rekRepository.addLike(user.getUserId(), rekId);
         } else {
+            System.out.println("deleting like");
             this.rekRepository.deleteLike(user.getUserId(), rekId);
         }
     }

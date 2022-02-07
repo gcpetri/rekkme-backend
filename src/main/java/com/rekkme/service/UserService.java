@@ -89,6 +89,45 @@ public class UserService {
         return map;
     }
 
+    public User editUser(UserCreateDto userCreateDto, User existingUser) throws Exception {
+
+        // create the user
+        if (userCreateDto.getUsername() != null) {
+            if (!validateUsername(userCreateDto.getUsername())) {
+                throw new Exception("invalid username format");
+            }
+            existingUser.setUsername(userCreateDto.getUsername());
+        }
+        if (userCreateDto.getEmail() != null) {
+            if (!validateEmail(userCreateDto.getEmail())) {
+                throw new Exception("invalid email format");
+            }
+            existingUser.setEmail(userCreateDto.getEmail());
+        }
+        if (userCreateDto.getAvatar() != null) {
+            if (userCreateDto.getAvatar() == null) {
+                existingUser.setImageUrl(this.avatarUrl + this.defaultAvatar);
+            } else {
+                existingUser.setImageUrl(this.avatarUrl + userCreateDto.getAvatar());
+            }
+        }
+        if (userCreateDto.getFirstname() != null) {
+            existingUser.setFirstName(userCreateDto.getFirstname());
+        }
+        if (userCreateDto.getLastname() != null) {
+            existingUser.setLastName(userCreateDto.getLastname());
+        }
+        if (userCreateDto.getIsPublic() != null) {
+            existingUser.setIsPublic(userCreateDto.getIsPublic());
+        }
+        
+        existingUser.setLastLogin(LocalDateTime.now());
+
+        // create the auth
+        User resUser = this.userRepository.save(existingUser);
+        return resUser;
+    }
+
     // utils
 
     private static boolean validateEmail(String emailStr) {

@@ -31,7 +31,7 @@ public interface RekRepository extends JpaRepository<Rek, UUID> {
     void addToQueue(UUID userId, UUID rekId, int queueOrder);
 
     @Query(value = "SELECT * FROM REKS r WHERE r.TO_USER_ID IN ?1 OR r.FROM_USER_ID IN ?1 ORDER BY r.CREATED_ON DESC", nativeQuery = true)
-    List<Rek> getActivity(List<UUID> userIds);
+    List<Rek> findCommunityReks(List<UUID> userIds);
 
     @Query(value = "SELECT * FROM REKS WHERE CATEGORY_ID = ?1 ORDER BY CREATED_ON DESC LIMIT 50", nativeQuery = true)
     List<Rek> findByCategory(UUID categoryId);
@@ -47,6 +47,9 @@ public interface RekRepository extends JpaRepository<Rek, UUID> {
     @Query(value = "DELETE FROM LIKES WHERE USER_ID = ?1 AND REK_ID = ?2", nativeQuery = true)
     void deleteLike(UUID userId, UUID rekId);
 
-    @Query(value = "SELECT COUNT(*) FROM LIKES WHERE USER_ID = ?1 AND REK_ID = ?1", nativeQuery = true)
-    int getLike(UUID userId, UUID rekId);
+    @Query(value = "SELECT COUNT(*) FROM LIKES l WHERE USER_ID = ?1 AND REK_ID = ?2", nativeQuery = true)
+    Integer getLike(UUID userId, UUID rekId);
+
+    @Query(value = "SELECT COUNT(l) FROM LIKES l WHERE l.REK_ID = ?1", nativeQuery = true)
+    int getNumLikes(UUID rekId);
 }

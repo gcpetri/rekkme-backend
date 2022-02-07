@@ -81,7 +81,6 @@ public class AuthFilter extends OncePerRequestFilter {
         // jwt = authorizationHeader.substring(7);
         jwt = cookieStr;
         username = jwtUtil.extractUsername(jwt);
-        System.out.println(username);
 
         // could not get username
         if (username == null) {
@@ -93,7 +92,16 @@ public class AuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        Map<String, String> usernameAndPassword = this.userService.getUsernameAndPassword(username);
+        Map<String, String> usernameAndPassword = null;
+        try {
+            usernameAndPassword = this.userService.getUsernameAndPassword(username);
+        } catch (Exception e) {
+            redirectResponseDto.setAction("LOGIN");
+            String json = new ObjectMapper().writeValueAsString(redirectResponseDto);
+            response.getWriter().write(json);
+            response.flushBuffer();
+            return;
+        }
 
         // there is no password on record
         if (usernameAndPassword == null) {
@@ -116,7 +124,6 @@ public class AuthFilter extends OncePerRequestFilter {
                 response.flushBuffer();
                 return;
             }
-            System.out.println(user.getUserId());
             request.setAttribute("user", user);
             filterChain.doFilter(request, response);
             return;

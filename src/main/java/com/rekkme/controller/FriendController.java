@@ -6,11 +6,12 @@ import java.util.stream.Collectors;
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.entity.UserDto;
+import com.rekkme.exception.FriendException;
 import com.rekkme.exception.RecordNotFoundException;
 import com.rekkme.exception.UserNotFoundException;
 import com.rekkme.service.FriendService;
+import com.rekkme.util.ConverterUtil;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,21 +30,29 @@ public class FriendController {
 
     private final UserRepository userRepository;
     private final FriendService friendService;
-    private final ModelMapper modelMapper;
+    private final ConverterUtil converterUtil;
 
     @GetMapping(value={"/", ""})
     public List<UserDto> getUserFriends(@RequestAttribute("user") User user) {
         return user.getFriends()
             .stream()
-            .map(this::convertToUserDto)
+            .map(u -> this.converterUtil.convertToUserDto(u))
             .collect(Collectors.toList());
     }
 
-    @GetMapping("/requests")
+    @GetMapping("/crowd")
+    public List<UserDto> getUserCrowd(@RequestAttribute("user") User user) {
+        List<User> crowd = this.userRepository.findCrowd(user.getUserId());
+        return crowd.stream()
+            .map(u -> this.converterUtil.convertToUserDto(u))
+            .collect(Collectors.toList());
+    }
+
+    @GetMapping(value={"/requests", "/requests/to"})
     public List<UserDto> getUserFriendRequestsTo(@RequestAttribute("user") User user) {
         return userRepository.getFriendRequestsTo(user.getUserId())
             .stream()
-            .map(this::convertToUserDto)
+            .map(u -> this.converterUtil.convertToUserDto(u))
             .collect(Collectors.toList());
     }
 
@@ -51,7 +60,7 @@ public class FriendController {
     public List<UserDto> getUserFriendRequestsFrom(@RequestAttribute("user") User user) {
         return userRepository.getFriendRequestsFrom(user.getUserId())
             .stream()
-            .map(this::convertToUserDto)
+            .map(u -> this.converterUtil.convertToUserDto(u))
             .collect(Collectors.toList());
     }
 
@@ -62,9 +71,16 @@ public class FriendController {
         if (toUser == null) {
             throw new UserNotFoundException(username);
         }
-        System.out.println("got toUser");
+        // toggle the friend request
         int count = this.userRepository.getFriendRequest(toUser.getUserId(), user.getUserId());
         if (count == 0) {
+            if (this.userRepository.getFriend(user.getUserId(), toUser.getUserId()) != 0) { // you are already following
+                throw new FriendException("you are already following " + toUser.getUsername());
+            }
+            if (toUser.getIsPublic()) {
+                this.friendService.addFriend(user.getUserId(), toUser.getUserId());
+                return ResponseEntity.ok().build();
+            }
             this.friendService.addFriendRequest(toUser.getUserId(), user.getUserId());
         } else {
             this.friendService.deleteFriendRequest(toUser.getUserId(), user.getUserId());
@@ -84,8 +100,7 @@ public class FriendController {
             throw new RecordNotFoundException("Friend Requests", fromUser.getUserId());
         }
         this.friendService.deleteFriendRequest(user.getUserId(), fromUser.getUserId());
-        this.friendService.addFriend(user.getUserId(), fromUser.getUserId());
-        user.getFriends().add(fromUser);
+        this.friendService.addFriend(fromUser.getUserId(), user.getUserId());
         fromUser.getFriends().add(user);
         return ResponseEntity.ok().build();
     }
@@ -114,14 +129,6 @@ public class FriendController {
         }
         this.friendService.deleteFriend(user.getUserId(), friend.getUserId());
         user.getFriends().remove(friend);
-        friend.getFriends().remove(user);
         return ResponseEntity.ok().build();
-    }
-
-    // utils
-
-    private UserDto convertToUserDto(User user) {
-        UserDto userDto = modelMapper.map(user, UserDto.class);
-        return userDto;
     }
 }

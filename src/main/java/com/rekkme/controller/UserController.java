@@ -14,8 +14,8 @@ import com.rekkme.dtos.responses.LoginResponseDto;
 import com.rekkme.exception.CreateUserException;
 import com.rekkme.security.JwtUtil;
 import com.rekkme.service.UserService;
+import com.rekkme.util.ConverterUtil;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,12 +45,12 @@ public class UserController {
     private String cookieName;
 
     private final UserService userService;
-    private final ModelMapper modelMapper;
+    private final ConverterUtil converterUtil;
     private final JwtUtil jwtUtil;
 
     @GetMapping(value={"/", ""})
     public UserDto getUser(@RequestAttribute("user") User user) {
-        return convertToDto(user);
+        return this.converterUtil.convertToUserDto(user);
     }
 
     @GetMapping("/ping")
@@ -102,6 +102,11 @@ public class UserController {
     @DeleteMapping("/delete")
     public ResponseEntity<Object> userDelete(@RequestAttribute("user") User user, HttpServletResponse response) throws IOException {
         this.userService.deleteUser(user);
+        Cookie cookie = new Cookie(this.cookieName, null);
+        cookie.setSecure(true);
+        cookie.setMaxAge(1000);
+        cookie.setPath("/");
+        response.addCookie(cookie);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -125,16 +130,35 @@ public class UserController {
             cookie.setPath("/");
             response.addCookie(cookie);
 
-            return ResponseEntity.status(HttpStatus.OK).body(respDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(respDto);
         } catch (Exception e) {
             throw new CreateUserException(e.getMessage());
         }
     }
 
-    // utils
+    @PostMapping("/{id}/edit")
+    public ResponseEntity<Object> userEdit(@RequestBody UserCreateDto userCreateDto, 
+        @RequestAttribute("user") User user, HttpServletResponse response) throws IOException {
+        try {
+            LoginResponseDto respDto = new LoginResponseDto();
+            User editedUser = this.userService.editUser(userCreateDto, user);
+            if (editedUser == null) {
+                respDto.setSuccess(false);
+                return ResponseEntity.status(HttpStatus.OK).body(respDto);
+            }
+            final String jwt = this.jwtUtil.generateToken(editedUser.getUsername());
+            respDto.setSuccess(true);
+            respDto.setJwt(jwt);
 
-    private UserDto convertToDto(User user) {
-        UserDto userDto = modelMapper.map(user, UserDto.class);
-        return userDto;
+            Cookie cookie = new Cookie(this.cookieName, jwt);
+            cookie.setSecure(true);
+            cookie.setMaxAge(this.COOKIE_AGE);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+
+            return ResponseEntity.status(HttpStatus.OK).body(respDto);
+        } catch (Exception e) {
+            throw new CreateUserException(e.getMessage());
+        }
     }
 }

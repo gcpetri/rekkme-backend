@@ -10,8 +10,8 @@ import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.entity.UserDto;
 import com.rekkme.exception.RecordNotFoundException;
 import com.rekkme.exception.UserNotFoundException;
+import com.rekkme.util.ConverterUtil;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class UserQueryController {
 
     private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
+    private final ConverterUtil converterUtil;
     
     @RequestMapping(value="", params="q")
     public List<UserDto> queryUsersByUsername(@RequestParam String q) {
@@ -43,7 +43,7 @@ public class UserQueryController {
         System.out.println("RegexStr" + regexStr);
         List<User> users = this.userRepository.findUserLike(regexStr);
         return users.stream()
-            .map(this::convertToUserDto)
+            .map(u -> this.converterUtil.convertToUserDto(u))
             .collect(Collectors.toList());
     }
 
@@ -51,7 +51,7 @@ public class UserQueryController {
     public List<UserDto> queryTopUsers() {
         List<User> users = this.userRepository.findTopUsers();
         return users.stream()
-            .map(this::convertToUserDto)
+            .map(u -> this.converterUtil.convertToUserDto(u))
             .collect(Collectors.toList());
     }
 
@@ -61,20 +61,13 @@ public class UserQueryController {
         if (user == null) {
             throw new UserNotFoundException(username);
         }
-        return this.convertToUserDto(user);
+        return this.converterUtil.convertToUserDto(user);
     }
 
-    @RequestMapping(value="", params="userid")
-    public UserDto getUserbyUserId(@RequestParam String userid) {
-        User user = this.userRepository.findById(UUID.fromString(userid))
-            .orElseThrow(() -> new RecordNotFoundException("Users", UUID.fromString(userid)));
-        return this.convertToUserDto(user);
-    }
-
-    // utils
-
-    private UserDto convertToUserDto(User user) {
-        UserDto friendDto = modelMapper.map(user, UserDto.class);
-        return friendDto;
+    @RequestMapping(value="", params="id")
+    public UserDto getUserbyUserId(@RequestParam UUID id) {
+        User user = this.userRepository.findById(id)
+            .orElseThrow(() -> new RecordNotFoundException("Users", id));
+        return this.converterUtil.convertToUserDto(user);
     }
 }

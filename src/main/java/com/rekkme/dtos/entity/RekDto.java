@@ -37,7 +37,7 @@ public class RekDto {
     private String artist;
     private String location;
     private String title;
-    private Long numLikes;
+    private int numLikes;
     private Boolean liked = false;
 
     public void setCreatedOn(LocalDateTime createdOn) {

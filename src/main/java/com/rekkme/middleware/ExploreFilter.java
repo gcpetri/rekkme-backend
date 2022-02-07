@@ -73,7 +73,12 @@ public class ExploreFilter extends OncePerRequestFilter {
             return;
         }
 
-        Map<String, String> usernameAndPassword = this.userService.getUsernameAndPassword(username);
+        Map<String, String> usernameAndPassword = null;
+        try {
+            usernameAndPassword = this.userService.getUsernameAndPassword(username);
+        } catch (Exception e) {
+            // do nothing
+        }
 
         // there is no password on record
         if (usernameAndPassword == null) {
