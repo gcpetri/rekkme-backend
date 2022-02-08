@@ -89,7 +89,7 @@ public class RekService {
 
             User toUser = this.userRepository.findByUsername(username);
             
-            if (this.userRepository.getFriend(user.getUserId(), toUser.getUserId()) == 0) { // can't send a rekk to someone who's not your friend
+            if (this.userRepository.existsFriend(user.getUserId(), toUser.getUserId()) == 0) { // can't send a rekk to someone who's not your friend
                 System.out.println("tried to recommend to not a friend");
                 continue;
             }
@@ -148,7 +148,7 @@ public class RekService {
         if (rek.getFromUser().getUserId().equals(user.getUserId())) { // can't like your own rek
             return;
         }
-        int count = this.rekRepository.getLike(user.getUserId(), rekId);
+        int count = this.rekRepository.existsLike(user.getUserId(), rekId);
         System.out.println(count);
         if (count == 0) {
             System.out.println("adding like");

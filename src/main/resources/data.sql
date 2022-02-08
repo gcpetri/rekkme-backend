@@ -8,6 +8,7 @@ DECLARE
     gcpetri_user_id USERS.USER_ID%type;
     maggie_user_id USERS.USER_ID%type;
     bobby_user_id USERS.USER_ID%type;
+    larry_user_id USERS.USER_ID%type;
 
     music_category_id CATEGORIES.CATEGORY_ID%type;
     tv_category_id CATEGORIES.CATEGORY_ID%type;
@@ -36,9 +37,13 @@ BEGIN
         INSERT INTO AUTH (AUTH_ID, USER_ID, PASSWORD) VALUES (uuid_generate_v4(), maggie_user_id, ''password'');
         INSERT INTO USERS (USER_ID, USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL, IS_PUBLIC) VALUES (''b13d85fa-fa0e-4f4a-9dc5-cac41593982d'', ''bobby'', ''Bobby'', ''Bones'', ''thebob@tamu.edu'', LOCALTIMESTAMP, 123, 11, ''https://raw.githubusercontent.com/tatiaris/rekkme/e3bd5b661546a556cd5b842a6d53c39deccf921c/public/avatars/guy-1.png'', true) RETURNING USER_ID INTO bobby_user_id;
         INSERT INTO AUTH (AUTH_ID, USER_ID, PASSWORD) VALUES (uuid_generate_v4(), bobby_user_id, ''password'');
+        INSERT INTO USERS (USER_ID, USERNAME, FIRST_NAME, LAST_NAME, EMAIL, LAST_LOGIN, REK_POINTS, KOS, IMAGE_URL, IS_PUBLIC) VALUES (''0d4f139e-f8f4-4a65-bd3e-0f912ca9b5ff'', ''larrydog'', ''Larry'', ''Medina'', ''larrydog29@tamu.edu'', LOCALTIMESTAMP, 13, 1, ''https://raw.githubusercontent.com/tatiaris/rekkme/e3bd5b661546a556cd5b842a6d53c39deccf921c/public/avatars/guy-1.png'', true) RETURNING USER_ID INTO larry_user_id;
+        INSERT INTO AUTH (AUTH_ID, USER_ID, PASSWORD) VALUES (uuid_generate_v4(), bobby_user_id, ''password'');
 
         INSERT INTO USER_FRIENDS (USER_ID, FRIEND_ID) VALUES (gcpetri_user_id, gcurious_user_id);
         INSERT INTO USER_FRIENDS (USER_ID, FRIEND_ID) VALUES (maggie_user_id, gcpetri_user_id);
+        INSERT INTO USER_FRIENDS (USER_ID, FRIEND_ID) VALUES (larry_user_id, gcpetri_user_id);
+        INSERT INTO USER_FRIENDS (USER_ID, FRIEND_ID) VALUES (gcpetri_user_id, larry_user_id);
 
         INSERT INTO CATEGORIES (CATEGORY_ID, NAME, IMAGE_URL) VALUES (uuid_generate_v4(), ''Music'', ''https://github.com/tatiaris/rekkme/raw/master/public/badges/MusicBadge.png'') RETURNING CATEGORY_ID INTO music_category_id;
         INSERT INTO CATEGORIES (CATEGORY_ID, NAME, IMAGE_URL) VALUES (uuid_generate_v4(), ''TV'', ''https://github.com/tatiaris/rekkme/raw/master/public/badges/TVBadge.png'') RETURNING CATEGORY_ID INTO tv_category_id;

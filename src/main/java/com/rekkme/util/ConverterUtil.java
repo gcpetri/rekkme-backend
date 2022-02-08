@@ -26,8 +26,9 @@ public class ConverterUtil {
     
     public UserDto convertToUserDto(User user) {
         UserDto userDto = this.modelMapper.map(user, UserDto.class);
-        userDto.setNumFriends(user.getFriends().size());
-        userDto.setNumCrowd(this.userRepository.findNumCrowd(user.getUserId()));
+        userDto.setNumFriends(this.userRepository.findNumFriends(user.getUserId()));
+        userDto.setNumFollowing(this.userRepository.findNumFollowing(user.getUserId()));
+        userDto.setNumFollowers(this.userRepository.findNumFollowers(user.getUserId()));
         return userDto;
     }
 
@@ -36,7 +37,7 @@ public class ConverterUtil {
         if (user == null) {
             return rekDto;
         }
-        if (this.rekRepository.getLike(user.getUserId(), rek.getRekId()) > 0) {
+        if (this.rekRepository.existsLike(user.getUserId(), rek.getRekId()) > 0) {
             rekDto.setLiked(true);
         }
         rekDto.setNumLikes(this.rekRepository.getNumLikes(rek.getRekId()));

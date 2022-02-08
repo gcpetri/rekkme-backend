@@ -12,12 +12,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, UUID> { 
 
-    @Query(value = "SELECT FRIEND_ID FROM USER_FRIENDS WHERE USER_ID = ?1", nativeQuery = true)
-    List<UUID> getFriendIds(UUID userId);
-
-    @Query(value = "SELECT * FROM USERS WHERE USER_ID IN ?1", nativeQuery = true)
-    List<User> findByIdArray(List<UUID> userIds);
-
     @Modifying
     @Query(value = "INSERT INTO USER_FRIENDS (USER_ID, FRIEND_ID) VALUES (?1, ?2)", nativeQuery = true)
     void addFriend(UUID userId, UUID friendId);
@@ -43,7 +37,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     void deleteFriendRequest(UUID toUserId, UUID fromUserId);
 
     @Query(value = "SELECT COUNT(*) FROM FRIEND_REQUESTS WHERE TO_USER_ID = ?1 AND FROM_USER_ID = ?2", nativeQuery = true)
-    int getFriendRequest(UUID toUserId, UUID fromUserId);
+    int existsFriendRequest(UUID toUserId, UUID fromUserId);
 
     @Query(value = "SELECT * FROM USERS u WHERE LOWER(u.USERNAME) SIMILAR TO :qStr OR LOWER(u.FIRST_NAME) SIMILAR TO :qStr OR LOWER(u.LAST_NAME) SIMILAR TO :qStr", nativeQuery = true)
     List<User> findUserLike(@Param("qStr") String qStr);
@@ -52,11 +46,23 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findTopUsers();
 
     @Query(value = "SELECT * FROM USER_FRIENDS LEFT JOIN USERS ON USERS.USER_ID = USER_FRIENDS.USER_ID WHERE USER_FRIENDS.FRIEND_ID = ?1", nativeQuery = true)
-    List<User> findCrowd(UUID userId);
+    List<User> findFollowers(UUID userId);
+
+    @Query(value = "SELECT * FROM USER_FRIENDS INNER JOIN USERS ON USERS.USER_ID = USER_FRIENDS.FRIEND_ID WHERE USER_FRIENDS.USER_ID = ?1", nativeQuery = true)
+    List<User> findFollowing(UUID userId);
+
+    @Query(value = "SELECT * FROM USER_FRIENDS f INNER JOIN USER_FRIENDS u ON u.USER_ID = f.FRIEND_ID INNER JOIN USERS s ON s.USER_ID = f.FRIEND_ID WHERE f.USER_ID = ?1", nativeQuery = true)
+    List<User> findFriends(UUID userId);
 
     @Query(value = "SELECT COUNT(*) FROM USER_FRIENDS WHERE FRIEND_ID = ?1", nativeQuery = true)
-    int findNumCrowd(UUID userId);
+    int findNumFollowers(UUID userId);
 
-    @Query(value = "SELECT COUNT(*) FROM USER_FRIENDS WHERE USER_ID = ?1 AND FRIEND_ID = ?2", nativeQuery = true)
-    int getFriend(UUID userId, UUID friendId);
+    @Query(value = "SELECT COUNT(*) FROM USER_FRIENDS WHERE USER_ID = ?1", nativeQuery = true)
+    int findNumFollowing(UUID userId);
+
+    @Query(value = "SELECT COUNT(*) FROM USER_FRIENDS f INNER JOIN USER_FRIENDS u ON u.USER_ID = f.FRIEND_ID WHERE f.USER_ID = ?1 AND u.FRIEND_ID = ?1", nativeQuery = true)
+    int findNumFriends(UUID userId);
+
+    @Query(value = "SELECT COUNT(*) FROM USER_FRIENDS f WHERE USER_ID = ?1 AND FRIEND_ID = ?2", nativeQuery = true)
+    int existsFriend(UUID userId, UUID friendId);
 }

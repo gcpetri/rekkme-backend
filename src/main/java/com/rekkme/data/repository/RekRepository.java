@@ -48,7 +48,7 @@ public interface RekRepository extends JpaRepository<Rek, UUID> {
     void deleteLike(UUID userId, UUID rekId);
 
     @Query(value = "SELECT COUNT(*) FROM LIKES l WHERE USER_ID = ?1 AND REK_ID = ?2", nativeQuery = true)
-    Integer getLike(UUID userId, UUID rekId);
+    int existsLike(UUID userId, UUID rekId);
 
     @Query(value = "SELECT COUNT(l) FROM LIKES l WHERE l.REK_ID = ?1", nativeQuery = true)
     int getNumLikes(UUID rekId);

@@ -24,26 +24,34 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("${app.api.basepath}/friends")
+@RequestMapping("${app.api.basepath}/network")
 @RequiredArgsConstructor
-public class FriendController {
+public class NetworkController {
 
     private final UserRepository userRepository;
     private final FriendService friendService;
     private final ConverterUtil converterUtil;
 
-    @GetMapping(value={"/", ""})
-    public List<UserDto> getUserFriends(@RequestAttribute("user") User user) {
-        return user.getFriends()
+    @GetMapping(value={"/friends", "/friends/", "/friends/list"})
+    public List<UserDto> getFriends(@RequestAttribute("user") User user) {
+        return this.userRepository.findFriends(user.getUserId())
             .stream()
             .map(u -> this.converterUtil.convertToUserDto(u))
             .collect(Collectors.toList());
     }
 
-    @GetMapping("/crowd")
-    public List<UserDto> getUserCrowd(@RequestAttribute("user") User user) {
-        List<User> crowd = this.userRepository.findCrowd(user.getUserId());
-        return crowd.stream()
+    @GetMapping(value={"/following", "/following/", "/following/list"})
+    public List<UserDto> getFollowing(@RequestAttribute("user") User user) {
+        return this.userRepository.findFollowing(user.getUserId())
+            .stream()
+            .map(u -> this.converterUtil.convertToUserDto(u))
+            .collect(Collectors.toList());
+    }
+
+    @GetMapping(value={"/followers", "/followers/", "/followers/list"})
+    public List<UserDto> getFollowers(@RequestAttribute("user") User user) {
+        return this.userRepository.findFollowers(user.getUserId())
+            .stream()
             .map(u -> this.converterUtil.convertToUserDto(u))
             .collect(Collectors.toList());
     }
@@ -72,9 +80,9 @@ public class FriendController {
             throw new UserNotFoundException(username);
         }
         // toggle the friend request
-        int count = this.userRepository.getFriendRequest(toUser.getUserId(), user.getUserId());
+        int count = this.userRepository.existsFriendRequest(toUser.getUserId(), user.getUserId());
         if (count == 0) {
-            if (this.userRepository.getFriend(user.getUserId(), toUser.getUserId()) != 0) { // you are already following
+            if (this.userRepository.existsFriend(user.getUserId(), toUser.getUserId()) != 0) { // you are already following
                 throw new FriendException("you are already following " + toUser.getUsername());
             }
             if (toUser.getIsPublic()) {
@@ -95,13 +103,12 @@ public class FriendController {
         if (fromUser == null) { // username doesn't exist
             throw new UserNotFoundException(username);
         }
-        int count = this.userRepository.getFriendRequest(user.getUserId(), fromUser.getUserId());
+        int count = this.userRepository.existsFriendRequest(user.getUserId(), fromUser.getUserId());
         if (count == 0) { // no friend request to accept
             throw new RecordNotFoundException("Friend Requests", fromUser.getUserId());
         }
         this.friendService.deleteFriendRequest(user.getUserId(), fromUser.getUserId());
         this.friendService.addFriend(fromUser.getUserId(), user.getUserId());
-        fromUser.getFriends().add(user);
         return ResponseEntity.ok().build();
     }
 
@@ -112,7 +119,7 @@ public class FriendController {
         if (fromUser == null) { // username doesn't exist
             throw new UserNotFoundException(username);
         }
-        int count = this.userRepository.getFriendRequest(user.getUserId(), fromUser.getUserId());
+        int count = this.userRepository.existsFriendRequest(user.getUserId(), fromUser.getUserId());
         if (count == 0) { // no friend request to accept
             throw new RecordNotFoundException("Friend Requests", fromUser.getUserId());
         }
@@ -128,7 +135,6 @@ public class FriendController {
             throw new UserNotFoundException(username);
         }
         this.friendService.deleteFriend(user.getUserId(), friend.getUserId());
-        user.getFriends().remove(friend);
         return ResponseEntity.ok().build();
     }
 }

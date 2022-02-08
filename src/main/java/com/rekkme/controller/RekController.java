@@ -13,6 +13,7 @@ import com.rekkme.data.entity.RekResult;
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.CategoryRepository;
 import com.rekkme.data.repository.RekRepository;
+import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.entity.CommentDto;
 import com.rekkme.dtos.entity.RekDto;
 import com.rekkme.dtos.entity.RekResultDto;
@@ -43,6 +44,7 @@ public class RekController {
     private final ConverterUtil converterUtil;
     private final CategoryRepository categoryRepository;
     private final RekService rekService;
+    private final UserRepository userRepository;
 
     // get reks to this user
     @GetMapping(value={"", "/", "/to"})
@@ -62,11 +64,12 @@ public class RekController {
             .collect(Collectors.toList());
     }
 
-    // get the reks associated with this user and their friends
+    // get the reks associated with this user's following
     @GetMapping("/community")
     public List<RekDto> getCommunity(@RequestAttribute("user") User user) {
         List<UUID> userIds = new ArrayList<>();
-        for (User friend : user.getFriends()) {
+        List<User> friends = this.userRepository.findFollowing(user.getUserId());
+        for (User friend : friends) {
             userIds.add(friend.getUserId());
         }
         return this.rekRepository.findCommunityReks(userIds)

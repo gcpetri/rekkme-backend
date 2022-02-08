@@ -30,7 +30,8 @@ public class UserDto {
     private String lastLogin;
     private Boolean isPublic;
     private Integer numFriends = 0;
-    private Integer numCrowd = 0;
+    private Integer numFollowing = 0;
+    private Integer numFollowers = 0;
 
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = dateFormatter.format(lastLogin);
