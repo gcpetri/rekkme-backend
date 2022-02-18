@@ -45,10 +45,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query(value = "SELECT * FROM USERS ORDER BY REK_POINTS DESC LIMIT 50", nativeQuery = true)
     List<User> findTopUsers();
 
-    @Query(value = "SELECT * FROM USER_FRIENDS LEFT JOIN USERS ON USERS.USER_ID = USER_FRIENDS.USER_ID WHERE USER_FRIENDS.FRIEND_ID = ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM USERS u INNER JOIN USER_FRIENDS f ON f.USER_ID = u.USER_ID WHERE f.FRIEND_ID = ?1", nativeQuery = true)
     List<User> findFollowers(UUID userId);
 
-    @Query(value = "SELECT * FROM USER_FRIENDS INNER JOIN USERS ON USERS.USER_ID = USER_FRIENDS.FRIEND_ID WHERE USER_FRIENDS.USER_ID = ?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM USERS u INNER JOIN USER_FRIENDS f ON f.FRIEND_ID = u.USER_ID WHERE f.USER_ID = ?1", nativeQuery = true)
     List<User> findFollowing(UUID userId);
 
     @Query(value = "SELECT * FROM USER_FRIENDS f INNER JOIN USER_FRIENDS u ON u.USER_ID = f.FRIEND_ID INNER JOIN USERS s ON s.USER_ID = f.FRIEND_ID WHERE f.USER_ID = ?1", nativeQuery = true)
