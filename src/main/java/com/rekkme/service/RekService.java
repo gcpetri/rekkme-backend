@@ -23,8 +23,10 @@ import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.entity.CommentDto;
 import com.rekkme.dtos.forms.RekRequestDto;
 import com.rekkme.dtos.forms.RekResultRequestDto;
+import com.rekkme.exception.NotEnoughPointsException;
 import com.rekkme.exception.RecordNotFoundException;
 import com.rekkme.exception.ResultAlreadyExistsException;
+import com.rekkme.util.PointsUtil;
 
 import org.springframework.stereotype.Service;
 
@@ -42,29 +44,33 @@ public class RekService {
     public RekResult addRekResult(User user, UUID rekId, RekResultRequestDto rekResultReq) {
         Rek rek = this.rekRepository.findById(rekId)
             .orElseThrow(() -> new RecordNotFoundException("Reks", rekId));
-        System.out.println("found rek");
         if (rek.getRekResult() != null) {
             throw new ResultAlreadyExistsException();
         }
-        System.out.println("rek result does not yet exist");
+
+        // create the result
         RekResult rekRes = new RekResult();
         rekRes.setKo(false);
         rekRes.setResult(rekResultReq.getResult());
         rekRes.setCreatedOn(LocalDateTime.now());
         rekRes.setRek(rek);
         RekResult rekResult = this.rekResultRepository.save(rekRes);
-        System.out.println("saved result");
-
-        // TO-DO figure out this points system
-        User fromUser = rek.getFromUser();
         rek.setRekResult(rekResult);
-        fromUser.setRekPoints(fromUser.getRekPoints() + (rekRes.getResult() - rek.getWager()));
+
+        // modify points
+        User fromUser = rek.getFromUser();
+        int newPoints = PointsUtil.calculatePoints(fromUser.getRekPoints(), rek.getWager(),
+            rekRes.getResult(), rekRes.getKo());
+        fromUser.setRekPoints(newPoints);
         this.userRepository.save(fromUser);
-        System.out.println("added result to rek");
+        
         return rekResult;
     }
 
     public List<Rek> addReks(RekRequestDto rekReq, User user, Category cat) {
+        if (user.getRekPoints() < rekReq.getWager()) {
+            throw new NotEnoughPointsException(user.getRekPoints());
+        }
         List<Rek> newReks = new ArrayList<>(); 
 
         List<Tag> newTags = new ArrayList<>();

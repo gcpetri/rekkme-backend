@@ -3,6 +3,7 @@ package com.rekkme.exception;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import org.springframework.http.HttpStatus;
 
 @RestControllerAdvice
@@ -35,6 +36,12 @@ public class ErrorHandler {
     @ExceptionHandler(ResultAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResultAlreadyExistsException handleResultAlreadyExistsException(ResultAlreadyExistsException ce) {
+        return ce;
+    }
+
+    @ExceptionHandler(NotEnoughPointsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public NotEnoughPointsException handleNotEnoughPointsException(NotEnoughPointsException ce) {
         return ce;
     }
 }

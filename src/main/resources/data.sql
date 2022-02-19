@@ -70,6 +70,9 @@ BEGIN
         INSERT INTO FRIEND_REQUESTS (FROM_USER_ID, TO_USER_ID) VALUES (gcpetri_user_id, maggie_user_id);
         INSERT INTO FRIEND_REQUESTS (FROM_USER_ID, TO_USER_ID) VALUES (bobby_user_id, gcpetri_user_id);
 
+        INSERT INTO USER_REK_QUEUES (USER_REK_QUEUE_ID, QUEUE_ORDER, USER_ID, REK_ID) VALUES (uuid_generate_v4(), 10.0, gcpetri_user_id, lincoln_park_rek_id);
+        INSERT INTO USER_REK_QUEUES (USER_REK_QUEUE_ID, QUEUE_ORDER, USER_ID, REK_ID) VALUES (uuid_generate_v4(), 5.0, gcpetri_user_id, palace_rek_id);
+
     end if;
 
 END;

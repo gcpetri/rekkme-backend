@@ -34,6 +34,9 @@ public class UserService {
     @Value("${app.api.avatarUrl}")
     private String avatarUrl;
 
+    @Value("${app.api.lowPoints:100}")
+    private Integer lowPoints;
+
     private String defaultAvatar = "guy-1.png";
     private final UserRepository userRepository;
     private final AuthRepository authRepository;
@@ -58,7 +61,7 @@ public class UserService {
         user.setLastName(userCreateDto.getLastname());
         user.setUsername(userCreateDto.getUsername());
         user.setKos(0);
-        user.setRekPoints(0);
+        user.setRekPoints(this.lowPoints);
         user.setLastLogin(LocalDateTime.now());
 
         // create the auth
