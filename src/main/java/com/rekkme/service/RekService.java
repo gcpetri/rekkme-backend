@@ -40,6 +40,7 @@ public class RekService {
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final QueueService queueService;
 
     public RekResult addRekResult(User user, UUID rekId, RekResultRequestDto rekResultReq) {
         Rek rek = this.rekRepository.findById(rekId)
@@ -63,6 +64,9 @@ public class RekService {
             rekRes.getResult(), rekRes.getKo());
         fromUser.setRekPoints(newPoints);
         this.userRepository.save(fromUser);
+
+        // if in queue remove it
+        this.queueService.remove(rekId, user);
         
         return rekResult;
     }
@@ -138,15 +142,6 @@ public class RekService {
         comment.setRek(rek);
         return this.commentRepository.save(comment);
     }
-
-    /*
-    public List<Rek> addQueue(User user, UUID rekId) {
-        this.rekRepository.findById(rekId)
-            .orElseThrow(() -> new RecordNotFoundException("Reks", rekId));
-        List<Long> queueOrder = this.rekRepository.getQueueOrders(user.getUserId());
-        this.rekRepository.addToQueue(user.getUserId(), rekId, queueOrder.size());
-        return this.rekRepository.getQueue(user.getUserId());
-    } */
 
     public void toggleLike(User user, UUID rekId) {
         Rek rek = this.rekRepository.findById(rekId)

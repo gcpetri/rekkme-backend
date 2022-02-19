@@ -26,4 +26,8 @@ public interface QueueRepository extends JpaRepository<UserRekQueue, UUID> {
 
     @Query(value = "SELECT * FROM USER_REK_QUEUES WHERE USER_ID = ?1 AND REK_ID = ?2", nativeQuery = true)
     UserRekQueue findUserRekQueueByUserIdAndRekId(UUID userId, UUID rekId);
+
+    @Modifying
+    @Query(value = "DELETE FROM USER_REK_QUEUES WHERE USER_ID = ?1", nativeQuery = true)
+    void deleteUserQueue(UUID userId);
 }

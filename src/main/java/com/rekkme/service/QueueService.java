@@ -31,7 +31,12 @@ public class QueueService {
         if (oldQueue != null) {
             return oldQueue.getRek();
         }
-        float order = this.queueRepository.findHighestOrder(user.getUserId()) + 100.0f;
+        float order = this.queueRepository.findHighestOrder(user.getUserId());
+        if (order > Float.MAX_VALUE - 100.0f) { // they are obviously a bot
+            this.clearQueue(user);
+            return r;
+        }
+        order += 100.0f;
         UserRekQueue q = new UserRekQueue();
         q.setRek(r);
         q.setUser(user);
@@ -69,6 +74,10 @@ public class QueueService {
                 System.out.println("Already in that position");
                 return;
             }
+            if (order < Float.MIN_VALUE + 5.0f) { // they are obviously a bot
+                this.clearQueue(user);
+                return;
+            }
             this.queueRepository.updateOrder(order - 5.0f, q.getUserRekQueueId());
             return;
         }
@@ -87,5 +96,9 @@ public class QueueService {
         float beforeOrder = queueOrders.get(pos - 1);
         this.queueRepository.updateOrder(beforeOrder + ((afterOrder - beforeOrder) / 2), q.getUserRekQueueId());
         System.out.println("moved");
+    }
+
+    public void clearQueue(User user) {
+        this.queueRepository.deleteUserQueue(user.getUserId());
     }
 }

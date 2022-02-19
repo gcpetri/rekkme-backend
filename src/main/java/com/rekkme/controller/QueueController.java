@@ -56,4 +56,9 @@ public class QueueController {
         @PathVariable UUID rekId, @PathVariable Integer pos) {
         this.queueService.move(rekId, user, pos);
     }
+
+    @DeleteMapping(value={"/clear"})
+    public void clearQueue(@RequestAttribute("user") User user) {
+        this.queueService.clearQueue(user);
+    }
 }
