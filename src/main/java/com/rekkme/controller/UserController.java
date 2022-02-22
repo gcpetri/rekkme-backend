@@ -96,6 +96,7 @@ public class UserController {
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
+        this.userService.logout(user.getUserId());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

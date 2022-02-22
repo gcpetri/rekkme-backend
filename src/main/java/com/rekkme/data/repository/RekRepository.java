@@ -45,4 +45,7 @@ public interface RekRepository extends JpaRepository<Rek, UUID> {
 
     @Query(value = "SELECT r.* FROM REKS r INNER JOIN USER_REK_QUEUES q ON q.REK_ID = r.REK_ID WHERE q.USER_ID = ?1 ORDER BY q.QUEUE_ORDER ASC", nativeQuery = true)
     List<Rek> getQueueByUserId(UUID userId);
+
+    @Query(value = "SELECT r.TOP FROM REKS r INNER JOIN USER_REK_QUEUES q ON q.REK_ID = r.REK_ID WHERE q.USER_ID = ?1 ORDER BY q.QUEUE_ORDER ASC", nativeQuery = true)
+    Rek getQueueTop(UUID userId);
 }

@@ -10,8 +10,11 @@ import com.rekkme.data.entity.User;
 import com.rekkme.data.entity.UserRekQueue;
 import com.rekkme.data.repository.QueueRepository;
 import com.rekkme.data.repository.RekRepository;
+import com.rekkme.data.repository.UserRepository;
+import com.rekkme.dtos.responses.NotificationDto;
 import com.rekkme.exception.RecordNotFoundException;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,8 @@ public class QueueService {
     
     private final RekRepository rekRepository;
     private final QueueRepository queueRepository;
+    private final UserRepository userRepository;
+    private final NotifyService notifyService;
 
     public Rek push(UUID rekId, User user) {
         Rek r = this.rekRepository.findById(rekId)
@@ -100,5 +105,27 @@ public class QueueService {
 
     public void clearQueue(User user) {
         this.queueRepository.deleteUserQueue(user.getUserId());
+    }
+
+    // Notifications 
+
+    // cron = "0 0 9 15 * ?"
+    @Scheduled(fixedRate = 5000)
+	public void reportCurrentTime() {
+        for (User u : this.userRepository.findAll()) {
+            Rek rek = this.rekRepository.getQueueTop(u.getUserId());
+            if (rek != null) {
+                this.notifyService.sendNotification(u.getUserId(), this.rekQueue(rek.getTitle()));
+            }
+        }
+        System.out.println("Queue Notification Sent");
+	}
+
+    private NotificationDto rekQueue(String title) {
+        NotificationDto notification = new NotificationDto();
+        notification.setUsername("Rekkme");
+        notification.setMessage("Remember to try your Rekk: " + title + " today!");
+        notification.setAvatar(null);
+        return notification;
     }
 }

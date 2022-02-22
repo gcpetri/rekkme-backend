@@ -7,12 +7,14 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.rekkme.data.entity.Auth;
 import com.rekkme.data.entity.User;
 import com.rekkme.data.repository.AuthRepository;
+import com.rekkme.data.repository.EmitterRepository;
 import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.forms.UserCreateDto;
 import com.rekkme.exception.UserNotFoundException;
@@ -40,6 +42,7 @@ public class UserService {
     private String defaultAvatar = "guy-1.png";
     private final UserRepository userRepository;
     private final AuthRepository authRepository;
+    private final EmitterRepository emitterRepository;
 
     public User createUser(UserCreateDto userCreateDto) throws Exception {
 
@@ -74,6 +77,7 @@ public class UserService {
     }
 
     public void deleteUser(User user) {
+        this.logout(user.getUserId());
         this.userRepository.delete(user);
     }
 
@@ -129,6 +133,10 @@ public class UserService {
         // create the auth
         User resUser = this.userRepository.save(existingUser);
         return resUser;
+    }
+
+    public void logout(UUID userId) {
+        this.emitterRepository.remove(userId);
     }
 
     // utils

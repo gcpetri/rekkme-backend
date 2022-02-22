@@ -23,6 +23,7 @@ import com.rekkme.data.repository.UserRepository;
 import com.rekkme.dtos.entity.CommentDto;
 import com.rekkme.dtos.forms.RekRequestDto;
 import com.rekkme.dtos.forms.RekResultRequestDto;
+import com.rekkme.dtos.responses.NotificationDto;
 import com.rekkme.exception.NotEnoughPointsException;
 import com.rekkme.exception.RecordNotFoundException;
 import com.rekkme.exception.ResultAlreadyExistsException;
@@ -41,6 +42,7 @@ public class RekService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final QueueService queueService;
+    private final NotifyService notifyService;
 
     public RekResult addRekResult(User user, UUID rekId, RekResultRequestDto rekResultReq) {
         Rek rek = this.rekRepository.findById(rekId)
@@ -67,6 +69,10 @@ public class RekService {
 
         // if in queue remove it
         this.queueService.remove(rekId, user);
+
+        // send notification to fromUser
+        this.notifyService.sendNotification(fromUser.getUserId(), 
+            this.resultMessage(user, fromUser.getRekPoints()));
         
         return rekResult;
     }
@@ -90,6 +96,8 @@ public class RekService {
             }
         }
         this.tagRepository.saveAll(newTags);
+
+        List<UUID> toUsers = new ArrayList<>();
 
         for (String username : rekReq.getUsernames()) {
             if (username.equals(user.getUsername())) { // can't recommend to yourself
@@ -116,6 +124,8 @@ public class RekService {
             rek.setToUser(toUser);
             rek.setTitle(rekReq.getTitle());
             newReks.add(rek);
+
+            toUsers.add(toUser.getUserId());
         }
         List<Rek> newSavedReks = this.rekRepository.saveAll(newReks);
         
@@ -129,6 +139,13 @@ public class RekService {
                 this.tagRepository.addRekTagLink(r.getRekId(), oldTag.getTagId());
             }
         }
+
+        // send notification to fromUser
+        for (UUID userId : toUsers) {
+            this.notifyService.sendNotification(userId, 
+                this.rekMessage(user, rekReq.getTitle()));
+        }
+
         return newSavedReks;
     }
 
@@ -140,6 +157,8 @@ public class RekService {
         comment.setMessage(commentDto.getMessage());
         comment.setUser(user);
         comment.setRek(rek);
+        this.notifyService.sendNotification(rek.getFromUser().getUserId(), 
+            this.rekComment(user, rek.getTitle()));
         return this.commentRepository.save(comment);
     }
 
@@ -154,6 +173,8 @@ public class RekService {
         if (count == 0) {
             System.out.println("adding like");
             this.rekRepository.addLike(user.getUserId(), rekId);
+            this.notifyService.sendNotification(rek.getFromUser().getUserId(), 
+                this.rekLike(user, rek.getTitle()));
         } else {
             System.out.println("deleting like");
             this.rekRepository.deleteLike(user.getUserId(), rekId);
@@ -162,5 +183,37 @@ public class RekService {
 
     public List<Rek> findReksTo(UUID userId) {
         return this.rekRepository.findReksTo(userId);
+    }
+
+    private NotificationDto resultMessage(User user, int points) {
+        NotificationDto notification = new NotificationDto();
+        notification.setUsername(user.getUsername());
+        notification.setMessage(user.getUsername() + " gave your rekk " + Integer.toString(points) + " points");
+        notification.setAvatar(user.getImageUrl());
+        return notification;
+    }
+
+    private NotificationDto rekMessage(User user, String title) {
+        NotificationDto notification = new NotificationDto();
+        notification.setUsername(user.getUsername());
+        notification.setMessage(user.getUsername() + " sent you a Rekk: " + title);
+        notification.setAvatar(user.getImageUrl());
+        return notification;
+    }
+
+    private NotificationDto rekLike(User user, String title) {
+        NotificationDto notification = new NotificationDto();
+        notification.setUsername(user.getUsername());
+        notification.setMessage(user.getUsername() + " liked your Rekk: " + title);
+        notification.setAvatar(user.getImageUrl());
+        return notification;
+    }
+
+    private NotificationDto rekComment(User user, String title) {
+        NotificationDto notification = new NotificationDto();
+        notification.setUsername(user.getUsername());
+        notification.setMessage(user.getUsername() + " commented on your Rekk: " + title);
+        notification.setAvatar(user.getImageUrl());
+        return notification;
     }
 }
